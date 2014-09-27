@@ -189,6 +189,18 @@ var Phaser;
 	ground.scale.setTo(WIDTH, 2*UNIT);
 	//  This stops it from falling away when you jump on it
 	ground.body.immovable = true;
+
+	ground = platforms.create(0, HEIGHT - 4*UNIT, 'plain');
+	//  Scale it to fit the width of the game
+	ground.scale.setTo(WIDTH/3, 2*UNIT);
+	//  This stops it from falling away when you jump on it
+	ground.body.immovable = true;
+
+	ground = platforms.create(WIDTH/2, HEIGHT - 7*UNIT, 'plain');
+	//  Scale it to fit the width of the game
+	ground.scale.setTo(WIDTH/2, 2*UNIT);
+	//  This stops it from falling away when you jump on it
+	ground.body.immovable = true;
 	
 
 	// Initialize controls
