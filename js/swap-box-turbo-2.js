@@ -123,8 +123,15 @@ var Phaser;
 
     /** Swap period in millis */
     var SWAP_PERIOD = 2000;
-	// -----------------------------------------------------------------------------
-	// Global Variables
+    /** Number of flash between two swap */
+    var NUM_INDIC = 3;
+    /** Secondary Indicator period */
+    var INDIC_PERIOD = SWAP_PERIOD/NUM_INDIC;
+    /** Indicator thickness */
+    var INDIC_THICK = UNIT/3;
+
+    // -----------------------------------------------------------------------------
+    // Global Variables
     // -----------------------------------------------------------------------------
 
     /** The game instance */
@@ -142,8 +149,17 @@ var Phaser;
     var cursors;
 
     /** Timer for controls swap */
-    var swapTimer;
+    var swap = {
+	timer:0, // Timer start
+	count:1  // 
+    };
     
+    /** The group of HUD indicators for swap */
+    var swapIndicators;
+    
+    /** Tween used to make the indicators flash */
+    var swapTween;
+
     // -----------------------------------------------------------------------------
     // Game Logic
     // -----------------------------------------------------------------------------
@@ -175,7 +191,6 @@ var Phaser;
 	ground.body.immovable = true;
 	
 
-
 	// Initialize controls
 	var kb = game.input.keyboard;
 	var control1 = new Controls(kb.addKey(Phaser.Keyboard.FIVE),
@@ -192,20 +207,37 @@ var Phaser;
 	cube1 = new Cube(WIDTH/4, HEIGHT/2, control1);
 	cube2 = new Cube(3*WIDTH/4, HEIGHT/2, control2);
 
-	// Init timer
-	swapTimer = game.time.now;
+
+	// Initialize the swap indicators 
+	swapIndicators = game.add.group(undefined, 'indicators', true, 
+					false); // No body
+	swapIndicators.alpha = 0;
+
+	// Create 4 bars assembling into a frame
+	var indic;
+	// TOP
+	indic = swapIndicators.create(0, 0, 'plain');
+	indic.scale.setTo(WIDTH, INDIC_THICK);
+	// BOTTOM
+	indic = swapIndicators.create(0, HEIGHT - INDIC_THICK, 'plain');
+	indic.scale.setTo(WIDTH, INDIC_THICK);
+	// LEFT
+	indic = swapIndicators.create(WIDTH - INDIC_THICK, INDIC_THICK, 'plain');
+	indic.scale.setTo(INDIC_THICK, HEIGHT - 2*INDIC_THICK);
+	// RIGHT 
+	indic = swapIndicators.create(0, INDIC_THICK, 'plain');
+	indic.scale.setTo(INDIC_THICK, HEIGHT - 2*INDIC_THICK);
+
+	//Init the indicator tweener
+	swapTween = game.add.tween(swapIndicators);
+	
+	// Init swap timer
+	swap.timer = game.time.now;
     }
 
     function update() {
-	// Check the timer
-	if(game.time.elapsedSince(swapTimer) > SWAP_PERIOD) {
-	    // Swap controls
-	    var controls = cube1.controls;
-	    cube1.controls = cube2.controls;
-	    cube2.controls = controls;
-	    // Reset timer
-	    swapTimer = game.time.now;
-	}
+	// Control swap
+	handleSwap();
 
 	//  Collide the cubes with the platforms
 	game.physics.arcade.collide(cube1.sprite, platforms);
@@ -213,12 +245,46 @@ var Phaser;
 	
 	//  Checks to see if the both cubes overlap
 	game.physics.arcade.overlap(cube1.sprite, cube2.sprite, 
-				    function () {console.log('Death');},
+				    deathTouch,
 				    null, this);	
 	
 	// Update cubes states
 	cube1.update();
 	cube2.update();
     }
+
+    /** Measure time and swap controls if needed. Also in charge to
+     * display timing indicators */
+    function handleSwap() {
+	// Check the timer 
+	if(game.time.elapsedSince(swap.timer) >
+	   swap.count*INDIC_PERIOD) {
+	    // If it's the last indicator
+	    if(swap.count == NUM_INDIC) {
+		// Swap controls
+		var controls = cube1.controls;
+		cube1.controls = cube2.controls;
+		cube2.controls = controls;
+		// Reset timer
+		swap = {timer: game.time.now,
+			count: 1};
+		// Make a primary flash
+		swapTween.from({alpha:1}, INDIC_PERIOD/4);
+		swapTween.start();
+	    } else {
+		// Make a secondary flash
+		swapTween.from({alpha:0.5}, INDIC_PERIOD/4);
+		swapTween.start();
+		// Increment count
+		swap.count++;
+	    }
+	}
+    }
+
+    /** Called when the two players collide */
+    function deathTouch(c1, c2) {
+	console.log('Death Touch');
+    }
+
     
 })();
