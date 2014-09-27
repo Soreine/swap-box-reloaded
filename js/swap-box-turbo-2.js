@@ -229,8 +229,11 @@ var Phaser;
 	indic.scale.setTo(INDIC_THICK, HEIGHT - 2*INDIC_THICK);
 
 	//Init the indicator tweener
-	swapTween = game.add.tween(swapIndicators);
-	
+	swapTween = {primary: game.add.tween(swapIndicators),
+		     secondary: game.add.tween(swapIndicators)};
+	swapTween.primary.from({alpha:0}, INDIC_PERIOD/2);
+	swapTween.secondary.from({alpha:0}, INDIC_PERIOD/4);
+
 	// Init swap timer
 	swap.timer = game.time.now;
     }
@@ -269,12 +272,12 @@ var Phaser;
 		swap = {timer: game.time.now,
 			count: 1};
 		// Make a primary flash
-		swapTween.from({alpha:1}, INDIC_PERIOD/4);
-		swapTween.start();
+		swapIndicators.alpha = 1.0;
+		swapTween.primary.start();
 	    } else {
 		// Make a secondary flash
-		swapTween.from({alpha:0.5}, INDIC_PERIOD/4);
-		swapTween.start();
+		swapIndicators.alpha = 0.1;
+		swapTween.secondary.start();
 		// Increment count
 		swap.count++;
 	    }
