@@ -8,31 +8,48 @@ var Phaser;
     // Prototypes (or classes)
     // -----------------------------------------------------------------------------
 
-    /** A class representing a player entity. Manage its state,
-     * controls, and reference its game object
-     * @param {Number} x 
-     * @param {Number} y
-     * @return A newly created player at the position x,y */
-    function Player(x, y) {
-	/** State of the player */
-	this.state = Player.STATES.STANDING;
-	
-	/** Reference to its sprite */
-	this.sprite = game.add.image(x, y, 'plain');
-	// Set its size
-	this.sprite.scale.setTo(UNIT,UNIT);
-	//  Enable physics on the player
-	game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
-	//  Player physics properties.
-	this.sprite.body.gravity.y = GRAVITY;
-	this.sprite.body.collideWorldBounds = true;
-	
-	/** The controls object */
-	this.controls = undefined;
+    /** A set of controls binding for a player
+     * @param {Phaser.Key} up 
+     * @param {Phaser.Key} down 
+     * @param {Phaser.Key} right
+     * @param {Phaser.Key} left
+     */
+    function Controls(up, down, right, left) {
+	this.up = up;
+	this.down = down;
+	this.right = right;
+	this.left = left;
     }
 
-    /** Possible states for a player */
-    Player.STATES = {
+    
+    /** An object representing a player controlled cube. Manage its
+     * state, and reference its game object
+     * @param {Number} x 
+     * @param {Number} y
+     * @param {Controls} controls The controls object for this cube
+     * @return A newly created cube at the position x,y */
+    function Cube(x, y, controls) {
+	/** State of the cube */
+	this.state = Cube.STATES.STANDING;
+
+	/** Reference to its sprite */
+	this.sprite = game.add.sprite(x, y, 'plain');
+	// Set its size
+	this.sprite.scale.setTo(UNIT,UNIT);
+	//  Enable physics on the cube
+	game.physics.arcade.enable(this.sprite);
+
+	this.body = this.sprite.body;
+	//  Cube physics properties.
+	this.body.gravity.y = GRAVITY;
+	this.body.collideWorldBounds = true;
+
+	/** The controls */
+	this.controls = controls;
+    }
+
+    /** Possible states for a cube */
+    Cube.STATES = {
 	/* When idle or walking */
 	STANDING:0,
 	/* When in the air, like jumping */
@@ -41,10 +58,38 @@ var Phaser;
 	DEAD:2
     };
 
-    Player.prototype = {
-	/** Update the player entity, reading inputs and all... */
+    Cube.prototype = {
+	/** Update the state of the cube, then handle inputs */
 	update: function () {
-	    // TODO
+	    // Update state
+	    if(this.body.touching.down) {
+		this.state = Cube.STATES.STANDING;
+	    } else {
+		this.state = Cube.STATES.AIRBORNE;
+	    }
+
+	    // Reset speed
+	    this.body.velocity.x = 0;
+	    // Handle inputs
+	    this.handleInputs();
+	},
+	
+	/** Reads inputs and act consequently */
+	handleInputs: function () {
+
+	    // Reset speed
+	    if (this.controls.left.isDown) {
+		//  Move to the left
+		this.body.velocity.x = -LATERAL_SPEED;
+	    } else if (this.controls.right.isDown) {
+		//  Move to the right
+		this.body.velocity.x = LATERAL_SPEED;
+	    }	
+	    
+	    //  Allow the player to jump if they are touching the ground.
+	    if (this.state != Cube.STATES.AIRBORNE && this.controls.up.isDown) {
+		this.body.velocity.y = -JUMP_SPEED;
+	    }
 	}
     };
 
@@ -53,39 +98,51 @@ var Phaser;
     // -----------------------------------------------------------------------------
 
     /** The assets folder */
-    var ASSETS = "/js/assets/",
+    var ASSETS = "/js/assets/";
 
     /** The base distance unit for the game. Equivalent to the size of
      * the player's cubes */
-	UNIT = 30,
+    var UNIT = 30;
 
     /** The resolution of the game window */
-	WIDTH = 800,
-	HEIGHT = 600,
+    var WIDTH = 800;
+    var HEIGHT = 600;
 
     /** The colors used in the game */
-	COLOR = {
+    var COLOR = {
 	/** The background color */
 	BACKGROUND:0xeeeeee
-    },
+    };
 
     /** The gravity acceleration */
-	GRAVITY = 500,
+    var GRAVITY = 3000;
+    /** Lateral movement speed for the cubes */
+    var LATERAL_SPEED = 300;
+    /** Jumping speed */
+    var JUMP_SPEED = 1000;
 
-    // -----------------------------------------------------------------------------
-    // Global Variables
+    /** Swap period in millis */
+    var SWAP_PERIOD = 2000;
+	// -----------------------------------------------------------------------------
+	// Global Variables
     // -----------------------------------------------------------------------------
 
     /** The game instance */
-	game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
-			       {preload: preload, create: create, update: update}),
-	
-	/** This group contains all the solid and fixed platforms */
-	platforms,
+    var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, '',
+			       {preload: preload, create: create, update: update});
+    
+    /** This group contains all the solid and fixed platforms */
+    var platforms;
 
-	/** References to the players objects */
-	player1,
-	player2;
+    /** References to the cubes objects */
+    var cube1;
+    var cube2;
+
+    /** The arrow keys */
+    var cursors;
+
+    /** Timer for controls swap */
+    var swapTimer;
     
     // -----------------------------------------------------------------------------
     // Game Logic
@@ -118,45 +175,50 @@ var Phaser;
 	ground.body.immovable = true;
 	
 
+
+	// Initialize controls
+	var kb = game.input.keyboard;
+	var control1 = new Controls(kb.addKey(Phaser.Keyboard.FIVE),
+				    null,
+				    kb.addKey(Phaser.Keyboard.Y),
+				    kb.addKey(Phaser.Keyboard.R));
+	var control2 = new Controls(kb.addKey(Phaser.Keyboard.UP),
+				    null,
+				    kb.addKey(Phaser.Keyboard.RIGHT),
+				    kb.addKey(Phaser.Keyboard.LEFT));
+
+
 	// Initialize this player entity
-	player1 = new Player(WIDTH/2, HEIGHT/2);
+	cube1 = new Cube(WIDTH/4, HEIGHT/2, control1);
+	cube2 = new Cube(3*WIDTH/4, HEIGHT/2, control2);
 
-
-
-	 /*
-	 //  Our two animations, walking left and right.
-	 player.animations.add('left', [0, 1, 2, 3], 10, true);
-	 player.animations.add('right', [5, 6, 7, 8], 10, true);
-
-	 //  Finally some stars to collect
-	 stars = game.add.group();
-
-	 //  We will enable physics for any star that is created in this group
-	 stars.enableBody = true;
-
-	 //  Here we'll create 12 of them evenly spaced apart
-	 for (var i = 0; i < 12; i++)
-	 {
-         //  Create a star inside of the 'stars' group
-         var star = stars.create(i * 70, 0, 'star');
-
-         //  Let gravity do its thing
-         star.body.gravity.y = 300;
-
-         //  This just gives each star a slightly random bounce value
-         star.body.bounce.y = 0.7 + Math.random() * 0.2;
-	 }
-
-	 //  The score
-	 scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
-
-	 //  Our controls.
-	 cursors = game.input.keyboard.createCursorKeys();
-	 
-	 */
+	// Init timer
+	swapTimer = game.time.now;
     }
 
     function update() {
+	// Check the timer
+	if(game.time.elapsedSince(swapTimer) > SWAP_PERIOD) {
+	    // Swap controls
+	    var controls = cube1.controls;
+	    cube1.controls = cube2.controls;
+	    cube2.controls = controls;
+	    // Reset timer
+	    swapTimer = game.time.now;
+	}
+
+	//  Collide the cubes with the platforms
+	game.physics.arcade.collide(cube1.sprite, platforms);
+	game.physics.arcade.collide(cube2.sprite, platforms);
+	
+	//  Checks to see if the both cubes overlap
+	game.physics.arcade.overlap(cube1.sprite, cube2.sprite, 
+				    function () {console.log('Death');},
+				    null, this);	
+	
+	// Update cubes states
+	cube1.update();
+	cube2.update();
     }
     
 })();
