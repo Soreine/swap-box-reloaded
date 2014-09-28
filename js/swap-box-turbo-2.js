@@ -36,6 +36,9 @@ var Phaser;
 	this.sprite = game.add.sprite(x, y, 'plain');
 	// Set its size
 	this.sprite.scale.setTo(UNIT,UNIT);
+	this.sprite.anchor = {x:0.5, y:0.5};
+	this.sprite.angle = 45;
+
 	//  Enable physics on the cube
 	game.physics.arcade.enable(this.sprite);
 
@@ -46,6 +49,9 @@ var Phaser;
 
 	/** The controls */
 	this.controls = controls;
+
+	/** The tween that make them turn in the air */
+	this.tween = game.add.tween(this.sprite);
     }
 
     /** Possible states for a cube */
@@ -63,9 +69,27 @@ var Phaser;
 	update: function () {
 	    // Update state
 	    if(this.body.touching.down) {
+		/*
+		 // If we were airborne and just landed
+		 if(this.state == Cube.STATES.AIRBORNE) {
+		 // Determine the closest 90° like angle
+		 var angle;
+		 var mod = this.sprite.angle % 90;
+		 if(mod < 45) {
+		 angle = this.sprite.angle - mod;
+		 } else {
+		 angle = this.sprite.angle + 90 - mod;
+		 }
+		 // Stop turning animation
+		 this.tween.to({angle:angle}, 500);
+		 this.tween.start();
+		 }
+		 */
 		this.state = Cube.STATES.STANDING;
+		this.sprite.rotation = 0;
 	    } else {
 		this.state = Cube.STATES.AIRBORNE;
+		this.sprite.rotation += 0.2;
 	    }
 
 	    // Reset speed
@@ -201,7 +225,6 @@ var Phaser;
 	ground.scale.setTo(WIDTH/2, 2*UNIT);
 	//  This stops it from falling away when you jump on it
 	ground.body.immovable = true;
-	
 
 	// Initialize controls
 	var kb = game.input.keyboard;
