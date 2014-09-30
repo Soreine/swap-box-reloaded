@@ -45,7 +45,11 @@ SB2.Play.swapTween;
 SB2.Play.prototype.preload = function () {
     // This is a plain color texture
     this.game.load.image('plain', SB2.ASSETS + '1.png');
+    this.game.load.image('city1', SB2.ASSETS + 'city1.png');
+    this.game.load.image('city2', SB2.ASSETS + 'city2.png');
 };
+
+var city1, city2;
 
 SB2.Play.prototype.create = function () {
     // Temporary variable to create ground objects
@@ -57,7 +61,9 @@ SB2.Play.prototype.create = function () {
         // The two sets of Controls
         control1,
         control2,
-    // Some constants
+        // Cities background for fun
+        city,
+        // Some constants
         HEIGHT = SB2.HEIGHT,
         WIDTH = SB2.WIDTH,
         INDIC_THICK = SB2.INDIC_THICK,
@@ -70,6 +76,12 @@ SB2.Play.prototype.create = function () {
     // Set the background color
     this.game.stage.backgroundColor = SB2.BACKGROUND_COLOR;
     
+    city = this.game.add.tileSprite(0, 0, 800, 600, 'city1');
+    city.autoScroll(10, 0);
+    
+    city = this.game.add.tileSprite(0, 0, 800, 600, 'city2');
+    city.autoScroll(20, 0);
+
     //  Initialize the platforms group
     this.platforms = this.game.add.group(undefined, // No parent group
 			       'platforms', // Name for debug
