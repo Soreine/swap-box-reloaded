@@ -24,7 +24,7 @@ SB2.ASSETS = SB2.BASE_PATH + "js/assets/";
 SB2.UNIT = 30;
 
 /** The resolution of the game window */
-SB2.WIDTH = 780;
+SB2.WIDTH = 800;
 SB2.HEIGHT = 600;
 
 /** Background color */
@@ -39,7 +39,9 @@ SB2.JUMP_SPEED = 1000;
 
 /** Swap period in millis */
 SB2.SWAP_PERIOD = 2000;
-/** Number of flash between two swap */
+/** Activate secondary flash */
+SB2.SECONDARY_INDICATOR = false;
+/** Number of flashes between two swap */
 SB2.NUM_INDIC = 3;
 /** Secondary Indicator period */
 SB2.INDIC_PERIOD = SB2.SWAP_PERIOD/SB2.NUM_INDIC;
@@ -53,7 +55,7 @@ SB2.STATES = {};
 //------------------------------------------------------------------------------
 window.onload = function () {
     /* Create a Game instance */
-    var game = new Phaser.Game(SB2.WIDTH, SB2.HEIGHT, Phaser.CANVAS, '', null, false, false);
+    var game = new Phaser.Game(SB2.WIDTH, SB2.HEIGHT, Phaser.AUTO, '', null, false, false);
     
     /** Reference to the game */
     SB2.game = game;

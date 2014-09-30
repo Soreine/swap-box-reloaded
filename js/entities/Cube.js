@@ -17,7 +17,6 @@ SB2.Cube = function (game, x, y, controls) {
     // Set its size
     this.sprite.scale.setTo(SB2.UNIT,SB2.UNIT);
     this.sprite.anchor = {x:0.5, y:0.5};
-    this.sprite.angle = 45;
 
     //  Enable physics on the cube
     game.physics.arcade.enable(this.sprite);
