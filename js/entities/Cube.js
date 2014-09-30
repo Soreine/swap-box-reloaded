@@ -28,28 +28,17 @@ SB2.Cube = function (game, x, y, controls) {
 
     /** The controls */
     this.controls = controls;
-
-    /** The tween that make them turn in the air */
-    this.tween = game.add.tween(this.sprite);
 }
-
-/** Possible states for a cube */
-/** When idle or walking */
-SB2.Cube.STANDING = 0;
-/** When in the air, like jumping */
-SB2.Cube.AIRBORNE = 1;
-/** When dead */
-SB2.Cube.DEAD = 2;
 
 SB2.Cube.prototype = {
     /** Update the state of the cube, then handle inputs */
     update: function () {
 	// Update state
 	if(this.body.touching.down) {
-	    this.state = SB2.Cube.STANDING;
+	    this.state = this.STANDING;
 	    this.sprite.rotation = 0;
 	} else {
-	    this.state = SB2.Cube.AIRBORNE;
+	    this.state = this.AIRBORNE;
 	    this.sprite.rotation += 0.2;
 	}
 
@@ -72,9 +61,15 @@ SB2.Cube.prototype = {
 	}	
 	
 	//  Allow the player to jump if they are touching the ground.
-	if (this.state != SB2.Cube.AIRBORNE && this.controls.up.isDown) {
+	if (this.state != this.AIRBORNE && this.controls.up.isDown) {
 	    this.body.velocity.y = -SB2.JUMP_SPEED;
 	}
-    }
+    },
+    /** Possible states for a cube */
+    /** When idle or walking */
+    STANDING:  0,
+    /** When in the air, like jumping */
+    AIRBORNE: 1,
+    /** When dead */
+    DEAD: 2
 };
-
