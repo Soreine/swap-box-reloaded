@@ -49,8 +49,6 @@ SB2.Play.prototype.preload = function () {
     this.game.load.image('city2', SB2.ASSETS + 'city2.png');
 };
 
-var city1, city2;
-
 SB2.Play.prototype.create = function () {
     // Temporary variable to create ground objects
     var ground,
@@ -77,10 +75,10 @@ SB2.Play.prototype.create = function () {
     this.game.stage.backgroundColor = SB2.BACKGROUND_COLOR;
     
     city = this.game.add.tileSprite(0, 0, 800, 600, 'city1');
-    city.autoScroll(10, 0);
+    city.autoScroll(-10, 0);
     
     city = this.game.add.tileSprite(0, 0, 800, 600, 'city2');
-    city.autoScroll(20, 0);
+    city.autoScroll(-20, 0);
 
     //  Initialize the platforms group
     this.platforms = this.game.add.group(undefined, // No parent group
