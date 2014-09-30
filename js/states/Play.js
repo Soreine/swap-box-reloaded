@@ -6,6 +6,7 @@
 SB2.Play = function (game) {
     // Call State constructor on this instance
     Phaser.State.call(this, game);
+
     // Add this state to game engine, without starting it
     game.state.add("Play", this, false);
 };
@@ -13,7 +14,6 @@ SB2.Play = function (game) {
 // Extends Phaser.State
 SB2.Play.prototype = Object.create(Phaser.State.prototype);
 SB2.Play.prototype.constructor = SB2.Play;
-
 
 //------------------------------------------------------------------------------
 // Members
@@ -28,7 +28,7 @@ SB2.Play.cube2;
 
 /** Timer for controls swap */
 SB2.Play.swap = {
-    timer:0, // Timer start
+    timer: 0, // Timer start
     count:1  // Secondary flash count
 };
 
@@ -59,38 +59,32 @@ SB2.Play.prototype.create = function () {
         // The two sets of Controls
         control1,
         control2,
-        // Cities background for fun
-        city,
         // Some constants
         HEIGHT = SB2.HEIGHT,
         WIDTH = SB2.WIDTH,
         INDIC_THICK = SB2.INDIC_THICK,
         UNIT = SB2.UNIT;
     
-
     //  We're going to be using physics, so enable the Arcade Physics system
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    // Set the background color
-    this.game.stage.backgroundColor = SB2.BACKGROUND_COLOR;
-    
-    city = this.game.add.tileSprite(0, 0, 800, 600, 'city1');
-    city.autoScroll(-10, 0);
-    
-    city = this.game.add.tileSprite(0, 0, 800, 600, 'city2');
-    city.autoScroll(-20, 0);
+    // Initilize the background
+    this.initBackground();
+
+    /** Adjust the size of the world */
+    this.game.world.setBounds(0, 0, SB2.WIDTH*5, SB2.HEIGHT);
 
     //  Initialize the platforms group
     this.platforms = this.game.add.group(undefined, // No parent group
 			       'platforms', // Name for debug
-			       true, // Add directly to the stage
+			       false, // Add directly to the stage
 			       true, // Enable body
 			       Phaser.Physics.ARCADE);
 
     // Here we create the ground.
     ground = this.platforms.create(0, HEIGHT - 2*UNIT, 'plain');
     //  Scale it to fit the width of the game
-    ground.scale.setTo(WIDTH, 2*UNIT);
+    ground.scale.setTo(WIDTH*10, 2*UNIT);
     //  This stops it from falling away when you jump on it
     ground.body.immovable = true;
 
@@ -122,6 +116,8 @@ SB2.Play.prototype.create = function () {
     this.cube1 = new SB2.Cube(this.game, WIDTH/4, HEIGHT/2, control1);
     this.cube2 = new SB2.Cube(this.game, 3*WIDTH/4, HEIGHT/2, control2);
 
+    /** Initialize the cameraman */
+    this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
 
     // Initialize the swap indicators 
     this.swapIndicators = this.game.add.group(undefined, 'indicators', true, 
@@ -169,7 +165,14 @@ SB2.Play.prototype.update = function () {
     // Update cubes states
     this.cube1.update();
     this.cube2.update();
+
+    // Tell the cameraman to follow players positions
+    this.cameraman.update(this.cube1, this.cube2, this.cities);
 };
+
+SB2.Play.prototype.render = function() {
+   this.game.debug.cameraInfo(this.game.camera, 32, 32);
+}
 
 //------------------------------------------------------------------------------
 // Other functions
@@ -205,6 +208,27 @@ SB2.Play.prototype.handleSwap = function () {
 	}
     }
 };
+
+
+/** Initialize the backgrounds of the game area
+*/
+SB2.Play.prototype.initBackground = function() {
+    var city, cityNames, i; // Used for temporary setting
+
+    // Set the background color
+    this.game.stage.backgroundColor = SB2.BACKGROUND_COLOR;
+
+    // Add two cities in the background giving a parallax effect
+    this.cities = [];
+    cityNames = ['city1', 'city2'];
+    for ( i = 0; i < cityNames.length; i++) {
+        city = this.game.add.tileSprite(0, 0, 800, 600, cityNames[i]);
+        city.fixedToCamera = true;
+        this.cities.push(city);
+    }
+
+}
+
 
 /** Called when the two players collide
  * @param {Object} c1 The first entity 

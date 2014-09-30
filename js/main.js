@@ -57,6 +57,7 @@ window.onload = function () {
     
     /** Reference to the game */
     SB2.game = game;
+
     // Initialize all the states
     SB2.STATES.play = new SB2.Play(game);
     
