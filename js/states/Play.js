@@ -27,7 +27,7 @@ SB2.Play.cube1;
 SB2.Play.cube2;
 
 /** Timer for controls swap */
-SB2.Play.swap
+SB2.Play.swap;
 
 /** The group of HUD indicators for swap */
 SB2.Play.swapIndicators;
@@ -121,7 +121,7 @@ SB2.Play.prototype.create = function () {
     this.cube2 = new SB2.Cube(this.game, 3*WIDTH/4, HEIGHT/2, control2);
 
     /** Initialize the cameraman */
-    this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
+    // this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
 
     // Initialize the swap indicators 
     this.swapIndicators = this.game.add.group(undefined, 'indicators', true, 
@@ -191,12 +191,12 @@ SB2.Play.prototype.updateRunning = function () {
     this.cube2.update();
 
     // Tell the cameraman to follow players positions
-    this.cameraman.update(this.cube1, this.cube2, this.cities);
+    // this.cameraman.update(this.cube1, this.cube2, this.cities);
 };
 
 SB2.Play.prototype.render = function() {
    this.game.debug.cameraInfo(this.game.camera, 32, 32);
-}
+};
 
 //------------------------------------------------------------------------------
 // Other functions
@@ -253,7 +253,7 @@ SB2.Play.prototype.initBackground = function() {
         this.cities.push(city);
     }
 
-}
+};
 
 
 /** Called when the two players collide
