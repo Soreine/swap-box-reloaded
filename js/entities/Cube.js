@@ -35,7 +35,7 @@ SB2.Cube.prototype = Object.create(Phaser.Sprite.prototype);
 SB2.Cube.prototype.constructor = SB2.Cube;
 
 /** Update the state of the cube, then handle inputs */
-SB2.Cube.prototype.update = function () {
+SB2.Cube.prototype.myUpdate = function () {
     // Update state
     if(this.body.touching.down) {
 	this.state = this.STANDING;

@@ -69,14 +69,14 @@ SB2.Play.prototype.create = function () {
     // Initialize controls
     this.initControls();
     // Initialize the players entities
-    this.cube1 = new SB2.Cube(this.game, 50, SB2.HEIGHT/2, this.controls1);
-    this.cube2 = new SB2.Cube(this.game, 150, SB2.HEIGHT/2, this.controls2);
+    this.cube1 = new SB2.Cube(this.game, 450, SB2.HEIGHT/2, this.controls1);
+    this.cube2 = new SB2.Cube(this.game, 550, SB2.HEIGHT/2, this.controls2);
     // Add them to the world
     this.game.add.existing(this.cube1);
     this.game.add.existing(this.cube2);
 
     /* Initialize the cameraman */
-    // this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
+    this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
     // Initialize the swap indicators 
     this.initSwap();
 };
@@ -84,8 +84,8 @@ SB2.Play.prototype.create = function () {
 SB2.Play.prototype.update = function () {
     // According to game state
     switch(this.state) {
-    case this.PAUSED:
-        this.updatePaused();
+    case this.DYING:
+        this.updateDying();
         break;   
     case this.RUNNING:
         this.updateRunning();
@@ -94,32 +94,28 @@ SB2.Play.prototype.update = function () {
 };
 
 /** Update function that pause the game */
-SB2.Play.prototype.updatePaused = function () {
-    // Cubes shouldn't move
-    this.cube1.body.velocity = {x: 0, y:0};
-    this.cube2.body.velocity = {x: 0, y:0};
+SB2.Play.prototype.updateDying = function () {
 };
 
 SB2.Play.prototype.updateRunning = function () {
-
-    // Control swap
-    this.handleSwap();
-
     //  Collide the cubes with the platforms
     this.game.physics.arcade.collide(this.cube1, this.platforms);
     this.game.physics.arcade.collide(this.cube2, this.platforms);
 
-    //  Checks to see if the both cubes overlap
-    this.game.physics.arcade.overlap(this.cube1, this.cube2, 
-				     this.deathTouch,
-				     null, this);	
+    // Control swap
+    this.handleSwap();
 
     // Update cubes states
-    this.cube1.update();
-    this.cube2.update();
-
+    this.cube1.myUpdate();
+    this.cube2.myUpdate();
+    
     // Tell the cameraman to follow players positions
-    // this.cameraman.update(this.cube1, this.cube2, this.cities);
+    this.cameraman.update(this.cube1, this.cube2, this.cities);
+
+    //  Checks to see if the both cubes overlap
+    if(this.game.physics.arcade.overlap(this.cube1, this.cube2)) {
+        this.deathTouch();
+    }
 };
 
 SB2.Play.prototype.render = function() {
@@ -163,15 +159,18 @@ SB2.Play.prototype.handleSwap = function () {
     }
 };
 
-/** Called when the two players collide
- * @param {Object} c1 The first entity 
- * @param {Object} c2 The second entity */
-SB2.Play.prototype.deathTouch = function (c1, c2) {
+/** Called when the two players collide */
+SB2.Play.prototype.deathTouch = function () {
     var c, // A cube
         death; // A death sprite
-    var cubes = [c1, c2];
+    var cubes = [this.cube1, this.cube2];
     for(var i = 0; i < cubes.length; i++) {
         c = cubes[i];
+        // Pause the cube
+        c.body.velocity = {x:0, y:0};
+        c.velocity = {x:0, y:0};
+        c.body.allowGravity = false;
+        // Create death animation
         death = this.game.add.sprite(c.x, c.y, 'death');
         death.anchor = {x:0.5, y:0.5};
         death.scale.setTo(3, 3);
@@ -179,8 +178,8 @@ SB2.Play.prototype.deathTouch = function (c1, c2) {
         death.animations.add('die');
         death.animations.play('die', 10, false);
     }
-    // Pause the game
-    this.state = this.PAUSED;
+    // Update game state
+    this.state = this.DYING;
 };
 
 
