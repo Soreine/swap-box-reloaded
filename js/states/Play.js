@@ -95,6 +95,7 @@ SB2.Play.prototype.update = function () {
 
 /** Update function that pause the game */
 SB2.Play.prototype.updateDying = function () {
+    console.log(this.cube1.x + " " + this.cube1.y);
 };
 
 SB2.Play.prototype.updateRunning = function () {
@@ -135,27 +136,27 @@ SB2.Play.prototype.handleSwap = function () {
     // Check the timer 
     if(this.game.time.elapsedSince(this.swap.timer) >
        this.swap.count*SB2.INDIC_PERIOD) {
-	// If it's the last indicator
-	if(this.swap.count == SB2.NUM_INDIC) {
-	    // Swap controls
-	    controls = this.cube1.controls;
-	    this.cube1.controls = this.cube2.controls;
-	    this.cube2.controls = controls;
-	    // Reset timer
-	    this.swap = {timer: this.game.time.now,
-		         count: 1};
-	    // Make a primary flash
-	    this.swapIndicators.alpha = 1.0;
-	    this.swapTween.primary.start();
-	} else {
+	    // If it's the last indicator
+	    if(this.swap.count == SB2.NUM_INDIC) {
+	        // Swap controls
+	        controls = this.cube1.controls;
+	        this.cube1.controls = this.cube2.controls;
+	        this.cube2.controls = controls;
+	        // Reset timer
+	        this.swap = {timer: this.game.time.now,
+		                 count: 1};
+	        // Make a primary flash
+	        this.swapIndicators.alpha = 1.0;
+	        this.swapTween.primary.start();
+	    } else {
             if(SB2.SECONDARY_INDICATOR) {
-	        // Make a secondary flash
-	        this.swapIndicators.alpha = 0.1;
-	        this.swapTween.secondary.start();
+	            // Make a secondary flash
+	            this.swapIndicators.alpha = 0.1;
+	            this.swapTween.secondary.start();
             }
-	    // Increment count
-	    this.swap.count++;
-	}
+	        // Increment count
+	        this.swap.count++;
+	    }
     }
 };
 
@@ -166,18 +167,20 @@ SB2.Play.prototype.deathTouch = function () {
     var cubes = [this.cube1, this.cube2];
     for(var i = 0; i < cubes.length; i++) {
         c = cubes[i];
-        // Pause the cube
-        c.body.velocity = {x:0, y:0};
-        c.velocity = {x:0, y:0};
-        c.body.allowGravity = false;
+        console.log("Cube : " + c.velocity);
         // Create death animation
-        death = this.game.add.sprite(c.x, c.y, 'death');
+        death = this.game.add.sprite(c.body.x + c.width/2, c.body.y + c.height/2, 'death');
         death.anchor = {x:0.5, y:0.5};
         death.scale.setTo(3, 3);
         death.rotation = c.rotation;
         death.animations.add('die');
-        death.animations.play('die', 10, false);
+        death.animations.play('die', 30, false);
+        // Pause the cube
+        c.body.velocity = {x:0, y:0}
+        c.velocity = {x:0, y:0};
+        c.body.allowGravity = false;
     }
+    console.log("Death : " + death.x + " " + death.y);
     // Update game state
     this.state = this.DYING;
 };

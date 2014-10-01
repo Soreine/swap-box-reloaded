@@ -24,7 +24,7 @@ SB2.ASSETS = SB2.BASE_PATH + "js/assets/";
 SB2.UNIT = 30;
 
 /** The resolution of the game window */
-SB2.WIDTH = 800;
+SB2.WIDTH = 780;
 SB2.HEIGHT = 600;
 
 /** Background color */
