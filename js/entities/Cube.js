@@ -36,24 +36,55 @@ SB2.Cube.prototype.constructor = SB2.Cube;
 
 /** Update the state of the cube, then handle inputs */
 SB2.Cube.prototype.myUpdate = function () {
-    // Update state
-    if(this.body.touching.down) {
-	this.state = this.STANDING;
-	this.rotation = 0;
-    } else {
-	this.state = this.AIRBORNE;
-	this.rotation += 0.2;
+    if(this.state == this.DEAD) {
+        return;
     }
 
-    // Reset speed
-    this.body.velocity.x = 0;
-    // Handle inputs
-    this.handleInputs();
+    if(this.state == this.DYING) {
+        var anim = this.death.animations;
+        // Update the death animation
+        this.death.frameCount++;
+        if(this.death.frameCount > this.death.framerate) {
+            this.death.frameCount = 0;
+            if(this.death.reverse) {
+                // Go reverse
+                if(anim.currentFrame.index == 0) {
+                    this.death.destroy();
+                    this.state = this.DEAD;
+                } else {
+                    anim.previous();
+                }
+            } else {
+                // Go forward
+                if(anim.currentFrame.index == anim.frameTotal - 1) {
+                    // Hide the cube
+                    this.kill();
+                    this.death.reverse = true;
+                } else {
+                    anim.next();
+                }
+            }
+        }
+    } else {
+
+        // Update state
+        if(this.body.touching.down) {
+	    this.state = this.STANDING;
+	    this.rotation = 0;
+        } else {
+	    this.state = this.AIRBORNE;
+	    this.rotation += 0.2;
+        }
+        
+        // Reset speed
+        this.body.velocity.x = 0;
+        // Handle inputs
+        this.handleInputs();
+    }
 },
 
 /** Reads inputs and act consequently */
 SB2.Cube.prototype.handleInputs = function () {
-
     // Reset speed
     if (this.controls.left.isDown) {
 	//  Move to the left
@@ -69,11 +100,38 @@ SB2.Cube.prototype.handleInputs = function () {
     }
 };
 
+/** Stop the cube and start its death animation
+ * @param A reference to the game */
+SB2.Cube.prototype.die = function (game) {
+    // Oh no i'm dying :(
+    this.state = this.DYING;
+
+    // Create death animation
+    var death = this.game.add.sprite(this.body.x + this.width/2,
+                                     this.body.y + this.height/2,
+                                     'death');
+    death.anchor = {x:0.5, y:0.5};
+    death.scale.setTo(3, 3);
+    death.rotation = this.rotation;
+    death.frameCount = 0;
+    death.framerate = 1;
+    death.reverse = false;
+    death.animations.add('die');
+
+    this.death = death;
+    // Pause the cube
+    this.body.velocity = {x:0, y:0};
+    this.velocity = {x:0, y:0};
+    this.body.allowGravity = false;
+};
+
 /** Possible states for a cube */
 /** When idle or walking */
 SB2.Cube.prototype.STANDING = 0;
 /** When in the air, like jumping */
 SB2.Cube.prototype.AIRBORNE = 1;
+/** When dying */
+SB2.Cube.prototype.DYING = 2;
 /** When dead */
-SB2.Cube.prototype.DEAD = 2;
+SB2.Cube.prototype.DEAD = 3;
 

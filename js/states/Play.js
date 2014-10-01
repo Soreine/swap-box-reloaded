@@ -95,7 +95,13 @@ SB2.Play.prototype.update = function () {
 
 /** Update function that pause the game */
 SB2.Play.prototype.updateDying = function () {
-    console.log(this.cube1.x + " " + this.cube1.y);
+    if(this.cube1.state == SB2.Cube.prototype.DEAD && 
+       this.cube2.state == SB2.Cube.prototype.DEAD) {
+        this.game.state.start('Play');
+    } else {
+        this.cube1.myUpdate();
+        this.cube2.myUpdate();
+    }
 };
 
 SB2.Play.prototype.updateRunning = function () {
@@ -162,25 +168,8 @@ SB2.Play.prototype.handleSwap = function () {
 
 /** Called when the two players collide */
 SB2.Play.prototype.deathTouch = function () {
-    var c, // A cube
-        death; // A death sprite
-    var cubes = [this.cube1, this.cube2];
-    for(var i = 0; i < cubes.length; i++) {
-        c = cubes[i];
-        console.log("Cube : " + c.velocity);
-        // Create death animation
-        death = this.game.add.sprite(c.body.x + c.width/2, c.body.y + c.height/2, 'death');
-        death.anchor = {x:0.5, y:0.5};
-        death.scale.setTo(3, 3);
-        death.rotation = c.rotation;
-        death.animations.add('die');
-        death.animations.play('die', 30, false);
-        // Pause the cube
-        c.body.velocity = {x:0, y:0}
-        c.velocity = {x:0, y:0};
-        c.body.allowGravity = false;
-    }
-    console.log("Death : " + death.x + " " + death.y);
+    this.cube1.die();
+    this.cube2.die();
     // Update game state
     this.state = this.DYING;
 };
