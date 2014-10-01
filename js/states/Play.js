@@ -53,6 +53,7 @@ SB2.Play.prototype.preload = function () {
     this.game.load.image('plain', SB2.ASSETS + '1.png');
     this.game.load.image('city1', SB2.ASSETS + 'city1.png');
     this.game.load.image('city2', SB2.ASSETS + 'city2.png');
+    this.game.load.spritesheet('death', SB2.ASSETS + 'death.png', 10, 10, 9);
 };
 
 SB2.Play.prototype.create = function () {
@@ -68,8 +69,12 @@ SB2.Play.prototype.create = function () {
     // Initialize controls
     this.initControls();
     // Initialize the players entities
-    this.cube1 = new SB2.Cube(this.game, SB2.WIDTH/4, SB2.HEIGHT/2, this.controls1);
-    this.cube2 = new SB2.Cube(this.game, 3*SB2.WIDTH/4, SB2.HEIGHT/2, this.controls2);
+    this.cube1 = new SB2.Cube(this.game, 50, SB2.HEIGHT/2, this.controls1);
+    this.cube2 = new SB2.Cube(this.game, 150, SB2.HEIGHT/2, this.controls2);
+    // Add them to the world
+    this.game.add.existing(this.cube1);
+    this.game.add.existing(this.cube2);
+
     /* Initialize the cameraman */
     // this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
     // Initialize the swap indicators 
@@ -101,13 +106,13 @@ SB2.Play.prototype.updateRunning = function () {
     this.handleSwap();
 
     //  Collide the cubes with the platforms
-    this.game.physics.arcade.collide(this.cube1.sprite, this.platforms);
-    this.game.physics.arcade.collide(this.cube2.sprite, this.platforms);
+    this.game.physics.arcade.collide(this.cube1, this.platforms);
+    this.game.physics.arcade.collide(this.cube2, this.platforms);
 
     //  Checks to see if the both cubes overlap
-    this.game.physics.arcade.overlap(this.cube1.sprite, this.cube2.sprite, 
-				this.deathTouch,
-				null, this);	
+    this.game.physics.arcade.overlap(this.cube1, this.cube2, 
+				     this.deathTouch,
+				     null, this);	
 
     // Update cubes states
     this.cube1.update();
@@ -118,7 +123,7 @@ SB2.Play.prototype.updateRunning = function () {
 };
 
 SB2.Play.prototype.render = function() {
-   this.game.debug.cameraInfo(this.game.camera, 32, 32);
+    this.game.debug.cameraInfo(this.game.camera, 32, 32);
 };
 
 //------------------------------------------------------------------------------
@@ -134,27 +139,27 @@ SB2.Play.prototype.handleSwap = function () {
     // Check the timer 
     if(this.game.time.elapsedSince(this.swap.timer) >
        this.swap.count*SB2.INDIC_PERIOD) {
-	    // If it's the last indicator
-	    if(this.swap.count == SB2.NUM_INDIC) {
-	        // Swap controls
-	        controls = this.cube1.controls;
-	        this.cube1.controls = this.cube2.controls;
-	        this.cube2.controls = controls;
-	        // Reset timer
-	        this.swap = {timer: this.game.time.now,
-		                 count: 1};
-	        // Make a primary flash
-	        this.swapIndicators.alpha = 1.0;
-	        this.swapTween.primary.start();
-	    } else {
+	// If it's the last indicator
+	if(this.swap.count == SB2.NUM_INDIC) {
+	    // Swap controls
+	    controls = this.cube1.controls;
+	    this.cube1.controls = this.cube2.controls;
+	    this.cube2.controls = controls;
+	    // Reset timer
+	    this.swap = {timer: this.game.time.now,
+		         count: 1};
+	    // Make a primary flash
+	    this.swapIndicators.alpha = 1.0;
+	    this.swapTween.primary.start();
+	} else {
             if(SB2.SECONDARY_INDICATOR) {
-	            // Make a secondary flash
-	            this.swapIndicators.alpha = 0.1;
-	            this.swapTween.secondary.start();
+	        // Make a secondary flash
+	        this.swapIndicators.alpha = 0.1;
+	        this.swapTween.secondary.start();
             }
-	        // Increment count
-	        this.swap.count++;
-	    }
+	    // Increment count
+	    this.swap.count++;
+	}
     }
 };
 
@@ -162,27 +167,26 @@ SB2.Play.prototype.handleSwap = function () {
  * @param {Object} c1 The first entity 
  * @param {Object} c2 The second entity */
 SB2.Play.prototype.deathTouch = function (c1, c2) {
-    // Animation for the death
-    var deathTween1 = this.game.add.tween(this.cube1.sprite.scale);
-    var deathTween2 = this.game.add.tween(this.cube2.sprite.scale);
-    var to = {x:2*SB2.UNIT,
-              y:2*SB2.UNIT};
-
-    deathTween1.to(to, 2000);
-    deathTween2.to(to, 2000);
-
+    var c, // A cube
+        death; // A death sprite
+    var cubes = [c1, c2];
+    for(var i = 0; i < cubes.length; i++) {
+        c = cubes[i];
+        death = this.game.add.sprite(c.x, c.y, 'death');
+        death.anchor = {x:0.5, y:0.5};
+        death.scale.setTo(3, 3);
+        death.rotation = c.rotation;
+        death.animations.add('die');
+        death.animations.play('die', 10, false);
+    }
     // Pause the game
     this.state = this.PAUSED;
-
-    // On complete, reset the game
-    deathTween1.onComplete.add(function () {
-        deathTween2.stop();
-        this.game.state.start('Play');
-    }, this);
-    
-    deathTween1.start();
-    deathTween2.start();
 };
+
+
+//------------------------------------------------------------------------------
+// Initializations
+//------------------------------------------------------------------------------
 
 /** Initialize the backgrounds of the game area
 */
@@ -257,7 +261,7 @@ SB2.Play.prototype.initSwap = function () {
     indic = this.swapIndicators.create(0, SB2.INDIC_THICK, 'plain');
     indic.scale.setTo(SB2.INDIC_THICK, SB2.HEIGHT - 2*SB2.INDIC_THICK);
 
-    //Init the indicator tweener
+    // Init the indicator tweener
     this.swapTween = {primary: this.game.add.tween(this.swapIndicators),
 		      secondary: this.game.add.tween(this.swapIndicators)};
     this.swapTween.primary.from({alpha:0}, SB2.INDIC_PERIOD/2);
