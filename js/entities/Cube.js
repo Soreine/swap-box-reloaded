@@ -39,7 +39,7 @@ SB2.Cube.prototype.myUpdate = function () {
     if(this.state == this.DEAD) {
         return;
     }
-
+    
     if(this.state == this.DYING) {
         var anim = this.death.animations;
         // Update the death animation
@@ -76,8 +76,6 @@ SB2.Cube.prototype.myUpdate = function () {
             this.rotation += 0.2;
         }
         
-        // Reset speed
-        this.body.velocity.x = 0;
         // Handle inputs
         this.handleInputs();
     }
@@ -92,6 +90,9 @@ SB2.Cube.prototype.handleInputs = function () {
     } else if (this.controls.right.isDown) {
         //  Move to the right
         this.body.velocity.x = SB2.LATERAL_SPEED;
+    } else {
+        // Reset speed
+        this.body.velocity.x = 0;
     }
     
     //  Allow the player to jump if they are touching the ground.

@@ -4,10 +4,8 @@
 
 /** Game state for the game's core */
 SB2.Play = function (game) {
-    // Call State constructor on this instance
+    // Call State constructor on this instance and add this state to game engine, without starting it
     Phaser.State.call(this, game);
-
-    // Add this state to game engine, without starting it
     game.state.add("Play", this, false);
 };
 
@@ -18,7 +16,6 @@ SB2.Play.prototype.constructor = SB2.Play;
 //------------------------------------------------------------------------------
 // Members
 //------------------------------------------------------------------------------
-
 /** Controls of player 1 and 2 */
 SB2.Play.controls1;
 SB2.Play.controls2;
@@ -29,15 +26,9 @@ SB2.Play.platforms;
 /** References to the cubes objects */
 SB2.Play.cube1;
 SB2.Play.cube2;
-
-/** Timer for controls swap */
-SB2.Play.swap;
-
-/** The group of HUD indicators for swap */
-SB2.Play.swapIndicators;
-
-/** Tween used to make the indicators flash */
-SB2.Play.swapTween;
+SB2.Play.swap; /** Timer for controls swap */
+SB2.Play.swapIndicators; /** The group of HUD indicators for swap */
+SB2.Play.swapTween; /** Tween used to make the indicators flash */
 
 //------------------------------------------------------------------------------
 // Game state
@@ -49,36 +40,55 @@ SB2.Play.prototype.RUNNING = 1;
 // State functions
 //------------------------------------------------------------------------------
 SB2.Play.prototype.preload = function () {
-    // This is a plain color texture
-    this.game.load.image('plain', SB2.ASSETS + '1.png');
+    this.game.load.image('plain', SB2.ASSETS + '1.png'); // This is a plain color texture
     this.game.load.image('city1', SB2.ASSETS + 'city1.png');
     this.game.load.image('city2', SB2.ASSETS + 'city2.png');
     this.game.load.spritesheet('death', SB2.ASSETS + 'death.png', 10, 10, 9);
 };
 
-SB2.Play.prototype.create = function () {
-    this.state = this.RUNNING;
+SB2.Play.prototype.create = function () {    
+    /* We will define below, everything that should be started and instanciated
+    * in order to make the addition of biome's contexts possible */
+
     //  We're going to be using physics, so enable the Arcade Physics system
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
-    // Initilize the background
+
+    /* Adjust the size of the world. This will implicitly impacts the maximum 
+    size of each biome */
+    this.game.world.setBounds(0, 0, SB2.WIDTH*10, SB2.HEIGHT);
+
+    /* Preparing the biome generation by creating a level's seed and
+        instanciating a pseudo-random generator using a specific string
+        that could be for example, the name of the level.
+    */
+    this.seed = SB2.Biome.prototype.genSeed("Greta Svabo Bech");
+    this.randomizer = new SB2.Randomizer(this.seed);
+
+    // Initialize the cameraman, the background and the swap indicators
+    this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
+    this.initSwap();
     this.initBackground();
-    /* Adjust the size of the world */
-    this.game.world.setBounds(0, 0, SB2.WIDTH*5, SB2.HEIGHT);
-    //  Initialize the platforms group
-    this.initLevel();
-    // Initialize controls
+
+    // Preparing controls and cubes; btw, cube's position will be set by the biome
     this.initControls();
-    // Initialize the players entities
-    this.cube1 = new SB2.Cube(this.game, 450, SB2.HEIGHT/2, this.controls1);
-    this.cube2 = new SB2.Cube(this.game, 550, SB2.HEIGHT/2, this.controls2);
+    this.cube1 = new SB2.Cube(this.game, 200, 0, this.controls1);
+    this.cube2 = new SB2.Cube(this.game, 0, 0, this.controls2);
+
     // Add them to the world
     this.game.add.existing(this.cube1);
     this.game.add.existing(this.cube2);
 
-    /* Initialize the cameraman */
-    this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
-    // Initialize the swap indicators 
-    this.initSwap();
+    // Create the two very first biomes
+    this.currentBiome = new SB2.BasicBiome(this.seed, 0);
+    this.currentBiome.setCubesPositions(this.cube1, this.cube2);
+    //this.currentBiome.setCameraPosition(this.cameraman);
+    this.currentBiome.setUpContent(this.game);
+
+    this.nextBiome = new SB2.BasicBiome(this.seed, 1000);
+    this.nextBiome.setUpContent(this.game);
+
+    // Finally, set up the correct state
+    this.state = this.RUNNING;
 };
 
 SB2.Play.prototype.update = function () {
@@ -106,8 +116,7 @@ SB2.Play.prototype.updateDying = function () {
 
 SB2.Play.prototype.updateRunning = function () {
     //  Collide the cubes with the platforms
-    this.game.physics.arcade.collide(this.cube1, this.platforms);
-    this.game.physics.arcade.collide(this.cube2, this.platforms);
+    this.currentBiome.update(this.cube1, this.cube2, this.game);
 
     // Control swap
     this.handleSwap();
@@ -125,14 +134,9 @@ SB2.Play.prototype.updateRunning = function () {
     }
 };
 
-SB2.Play.prototype.render = function() {
-    this.game.debug.cameraInfo(this.game.camera, 32, 32);
-};
-
 //------------------------------------------------------------------------------
 // Other functions
 //------------------------------------------------------------------------------
-
 /** Measure time and swap controls if needed. Also in charge to
  * display timing indicators */
 SB2.Play.prototype.handleSwap = function () {
@@ -174,13 +178,11 @@ SB2.Play.prototype.deathTouch = function () {
     this.state = this.DYING;
 };
 
-
 //------------------------------------------------------------------------------
-// Initializations
+// Initialization functions
 //------------------------------------------------------------------------------
 
-/** Initialize the backgrounds of the game area
- */
+/** Initialize the backgrounds of the game area */
 SB2.Play.prototype.initBackground = function() {
     var city, cityNames, i; // Used for temporary setting
 
@@ -195,7 +197,6 @@ SB2.Play.prototype.initBackground = function() {
         city.fixedToCamera = true;
         this.cities.push(city);
     }
-
 };
 
 /** This function initialize the level. (Generate the first platforms) */
@@ -229,34 +230,50 @@ SB2.Play.prototype.initLevel = function () {
     ground.body.immovable = true;
 };
 
+/** Initialize the controls for player 1 and 2 */
+SB2.Play.prototype.initControls = function () {
+    var kb = this.game.input.keyboard;
+    this.controls1 = new SB2.Controls(kb.addKey(Phaser.Keyboard.UP),
+                           null,
+                           kb.addKey(Phaser.Keyboard.RIGHT),
+                           kb.addKey(Phaser.Keyboard.LEFT));
+    this.controls2 = new SB2.Controls(kb.addKey(Phaser.Keyboard.FIVE),
+                           null,
+                           kb.addKey(Phaser.Keyboard.Y),
+                           kb.addKey(Phaser.Keyboard.R));
+};
+
 /** Initialize the swap indicators and begin the swap timer. */
 SB2.Play.prototype.initSwap = function () {
-    // For creating indicators
-    var indic;
+    var indic,  // Temporary variable to create swap indicators
+    // constants shorthands
+    H = SB2.HEIGHT, W = SB2.WIDTH,
+    ITH = SB2.INDIC_THICK, U = SB2.UNIT,
+    P = SB2.INDIC_PERIOD;
 
-    this.swapIndicators = this.game.add.group(undefined, 'indicators', true, 
-                                              false); // No body
+
+    this.swapIndicators = this.game.add.group(undefined, 'indicators', true,  false); // No body
     this.swapIndicators.alpha = 0;
 
     // Create 4 bars assembling into a frame
     // TOP
     indic = this.swapIndicators.create(0, 0, 'plain');
-    indic.scale.setTo(SB2.WIDTH, SB2.INDIC_THICK);
+    indic.scale.setTo(W, ITH);
     // BOTTOM
-    indic = this.swapIndicators.create(0, SB2.HEIGHT - SB2.INDIC_THICK, 'plain');
-    indic.scale.setTo(SB2.WIDTH, SB2.INDIC_THICK);
+    indic = this.swapIndicators.create(0, H - ITH, 'plain');
+    indic.scale.setTo(W, ITH);
     // LEFT
-    indic = this.swapIndicators.create(SB2.WIDTH - SB2.INDIC_THICK, SB2.INDIC_THICK, 'plain');
-    indic.scale.setTo(SB2.INDIC_THICK, SB2.HEIGHT - 2*SB2.INDIC_THICK);
+    indic = this.swapIndicators.create(W - ITH, ITH, 'plain');
+    indic.scale.setTo(ITH, H - 2*ITH);
     // RIGHT 
-    indic = this.swapIndicators.create(0, SB2.INDIC_THICK, 'plain');
-    indic.scale.setTo(SB2.INDIC_THICK, SB2.HEIGHT - 2*SB2.INDIC_THICK);
+    indic = this.swapIndicators.create(0, ITH, 'plain');
+    indic.scale.setTo(ITH, H - 2*ITH);
 
     // Init the indicator tweener
     this.swapTween = {primary: this.game.add.tween(this.swapIndicators),
                       secondary: this.game.add.tween(this.swapIndicators)};
-    this.swapTween.primary.from({alpha:0}, SB2.INDIC_PERIOD/2);
-    this.swapTween.secondary.from({alpha:0}, SB2.INDIC_PERIOD/4);
+    this.swapTween.primary.from({alpha:0}, P/2);
+    this.swapTween.secondary.from({alpha:0}, P/4);
 
     // Init swap timer
     this.swap = {timer:this.game.time.now,

@@ -1,4 +1,4 @@
-!/* global SB2 */
+/* global SB2 */
 /* global Phaser */
 "use strict";
 
@@ -18,7 +18,7 @@ SB2.Cameraman = function (camera, time, speed) {
 
 SB2.Cameraman.prototype = {
     /** Value of the default lateral speed of the camera in unit per frame */
-    DEFAULT_SPEED:  0,
+    DEFAULT_SPEED:  100,
 
     /** Update the camera position since the last update */
     update: function (cube1, cube2, cities) {
@@ -31,7 +31,9 @@ SB2.Cameraman.prototype = {
 
         // Move the camera
         previousCamPos = this.camera.x;
-        this.camera.x = positionByCubes > positionByTime ? (positionByTime + positionByCubes) / 2 : positionByTime;
+        this.camera.x = positionByCubes > positionByTime ? 
+            (positionByTime + positionByCubes) / 2 : 
+            positionByTime;
         this.previousTime = this.time.now;
 
         // Handle the parallax effect on the background
