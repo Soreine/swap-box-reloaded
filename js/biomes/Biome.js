@@ -6,9 +6,10 @@
 * @param {Number} seed Seed needed to generate pseudo-random numbers
 * @param {Number} endOfLastBiome The end position of the previous Biome in pixel
 */
-SB2.Biome = function(seed, endOfLastBiome) {
+SB2.Biome = function(seed, width, endOfLastBiome) {
     this.seed = seed;
     this.endOfLastBiome = endOfLastBiome;
+    this.width = width;
 }
 
 /** Prototype of each Biome, will be useful to instanciate a specific Biome
@@ -30,6 +31,11 @@ SB2.Biome.prototype = {
     */
     setUpContent: function(game) {},
 
+    /** Update all  component of the Biome that shoud be
+    * @param {Phaser.game} game Instance of the current game
+    */
+    update: function(game) {},
+
     /** Generate a new seed from a string sentence
     * @param {String} key Key used to build the seed
     */
@@ -41,5 +47,10 @@ SB2.Biome.prototype = {
             seed += Math.pow(key.charCodeAt(i)*(i+1) % 14, 14) % 14000 ;
         }
         return seed;
+    },
+
+    /** Return the length of the cube */
+    getWidth: function() {
+        return this.width;
     }
 }

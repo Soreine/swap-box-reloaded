@@ -16,8 +16,15 @@ SB2.Play.prototype.constructor = SB2.Play;
 //------------------------------------------------------------------------------
 // Members
 //------------------------------------------------------------------------------
-SB2.Play.platforms; /** This group contains all the solid and fixed platforms */
-SB2.Play.cube1; /** References to the cubes objects */
+/** Controls of player 1 and 2 */
+SB2.Play.controls1;
+SB2.Play.controls2;
+
+/** This group contains all the solid and fixed platforms */
+SB2.Play.platforms;
+
+/** References to the cubes objects */
+SB2.Play.cube1;
 SB2.Play.cube2;
 SB2.Play.swap; /** Timer for controls swap */
 SB2.Play.swapIndicators; /** The group of HUD indicators for swap */
@@ -36,11 +43,10 @@ SB2.Play.prototype.preload = function () {
     this.game.load.image('plain', SB2.ASSETS + '1.png'); // This is a plain color texture
     this.game.load.image('city1', SB2.ASSETS + 'city1.png');
     this.game.load.image('city2', SB2.ASSETS + 'city2.png');
+    this.game.load.spritesheet('death', SB2.ASSETS + 'death.png', 10, 10, 9);
 };
 
-SB2.Play.prototype.create = function () {
-    var control1, control2; // The two sets of Controls
-    
+SB2.Play.prototype.create = function () {    
     /* We will define below, everything that should be started and instanciated
     * in order to make the addition of biome's contexts possible */
 
@@ -58,20 +64,24 @@ SB2.Play.prototype.create = function () {
     this.seed = SB2.Biome.prototype.genSeed("Greta Svabo Bech");
     this.randomizer = new SB2.Randomizer(this.seed);
 
-    // Preparing controls and cubes; btw, cube's position will be set by the biome
-    [control1, control2] = this.initControls();
-    this.cube1 = new SB2.Cube(this.game, 0, 0, control1);
-    this.cube2 = new SB2.Cube(this.game, 0, 0, control2);
-
     // Initialize the cameraman, the background and the swap indicators
-    this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
+    //this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
     this.initSwap();
     this.initBackground();
+
+    // Preparing controls and cubes; btw, cube's position will be set by the biome
+    this.initControls();
+    this.cube1 = new SB2.Cube(this.game, 200, 0, this.controls1);
+    this.cube2 = new SB2.Cube(this.game, 0, 0, this.controls2);
+
+    // Add them to the world
+    this.game.add.existing(this.cube1);
+    this.game.add.existing(this.cube2);
 
     // Create the two very first biomes
     this.currentBiome = new SB2.BasicBiome(this.seed, 0);
     this.currentBiome.setCubesPositions(this.cube1, this.cube2);
-    this.currentBiome.setCameraPosition(this.cameraman);
+    //this.currentBiome.setCameraPosition(this.cameraman);
     this.currentBiome.setUpContent(this.game);
 
     this.nextBiome = new SB2.BasicBiome(this.seed, 1000);
@@ -84,41 +94,37 @@ SB2.Play.prototype.create = function () {
 SB2.Play.prototype.update = function () {
     // According to game state
     switch(this.state) {
-    case this.PAUSED:
-        this.updatePaused();
+    case this.DYING:
+        this.updateDying();
         break;   
     case this.RUNNING:
         this.updateRunning();
         break;
     }
-}
+};
 
 /** Update function that pause the game */
-SB2.Play.prototype.updatePaused = function () {
-    // Cubes shouldn't move
-    this.cube1.body.velocity = {x: 0, y:0};
-    this.cube2.body.velocity = {x: 0, y:0};
-}
+SB2.Play.prototype.updateDying = function () {
+};
 
 SB2.Play.prototype.updateRunning = function () {
+    //  Collide the cubes with the platforms
+    this.currentBiome.update(this.cube1, this.cube2, this.game);
+
     // Control swap
     this.handleSwap();
 
-    //  Collide the cubes with the platforms
-    this.game.physics.arcade.collide(this.cube1.sprite, this.platforms);
-    this.game.physics.arcade.collide(this.cube2.sprite, this.platforms);
+    // Update cubes states
+    this.cube1.myUpdate();
+    this.cube2.myUpdate();
+    
+    // Tell the cameraman to follow players positions
+    // this.cameraman.update(this.cube1, this.cube2, this.cities);
 
     //  Checks to see if the both cubes overlap
-    this.game.physics.arcade.overlap(this.cube1.sprite, this.cube2.sprite, 
-                this.deathTouch,
-                null, this);    
-
-    // Update cubes states
-    this.cube1.update();
-    this.cube2.update();
-
-    // Tell the cameraman to follow players positions
-    this.cameraman.update(this.cube1, this.cube2, this.cities);
+    if(this.game.physics.arcade.overlap(this.cube1, this.cube2)) {
+        this.deathTouch();
+    }
 };
 
 //------------------------------------------------------------------------------
@@ -133,55 +139,52 @@ SB2.Play.prototype.handleSwap = function () {
     // Check the timer 
     if(this.game.time.elapsedSince(this.swap.timer) >
        this.swap.count*SB2.INDIC_PERIOD) {
-        // If it's the last indicator
-        if(this.swap.count == SB2.NUM_INDIC) {
-            // Swap controls
-            controls = this.cube1.controls;
-            this.cube1.controls = this.cube2.controls;
-            this.cube2.controls = controls;
-            // Reset timer
-            this.swap = {timer: this.game.time.now,
-                         count: 1};
-            // Make a primary flash
-            this.swapIndicators.alpha = 1.0;
-            this.swapTween.primary.start();
-        } else {
+	// If it's the last indicator
+	if(this.swap.count == SB2.NUM_INDIC) {
+	    // Swap controls
+	    controls = this.cube1.controls;
+	    this.cube1.controls = this.cube2.controls;
+	    this.cube2.controls = controls;
+	    // Reset timer
+	    this.swap = {timer: this.game.time.now,
+		         count: 1};
+	    // Make a primary flash
+	    this.swapIndicators.alpha = 1.0;
+	    this.swapTween.primary.start();
+	} else {
             if(SB2.SECONDARY_INDICATOR) {
-                // Make a secondary flash
-                this.swapIndicators.alpha = 0.1;
-                this.swapTween.secondary.start();
+	        // Make a secondary flash
+	        this.swapIndicators.alpha = 0.1;
+	        this.swapTween.secondary.start();
             }
-            // Increment count
-            this.swap.count++;
-        }
+	    // Increment count
+	    this.swap.count++;
+	}
     }
 };
 
-/** Called when the two players collide
- * @param {Object} c1 The first entity 
- * @param {Object} c2 The second entity */
-SB2.Play.prototype.deathTouch = function (c1, c2) {
-    // Animation for the death
-    var deathTween1 = this.game.add.tween(this.cube1.sprite.scale);
-    var deathTween2 = this.game.add.tween(this.cube2.sprite.scale);
-    var to = {x:2*SB2.UNIT, y:2*SB2.UNIT};
-
-    deathTween1.to(to, 2000);
-    deathTween2.to(to, 2000);
-
-    // Pause the game
-    this.state = this.PAUSED;
-
-    // On complete, reset the game
-    deathTween1.onComplete.add(function () {
-        deathTween2.stop();
-        this.game.state.start('Play');
-    }, this);
-    
-    deathTween1.start();
-    deathTween2.start();
+/** Called when the two players collide */
+SB2.Play.prototype.deathTouch = function () {
+    var c, // A cube
+        death; // A death sprite
+    var cubes = [this.cube1, this.cube2];
+    for(var i = 0; i < cubes.length; i++) {
+        c = cubes[i];
+        // Pause the cube
+        c.body.velocity = {x:0, y:0};
+        c.velocity = {x:0, y:0};
+        c.body.allowGravity = false;
+        // Create death animation
+        death = this.game.add.sprite(c.x, c.y, 'death');
+        death.anchor = {x:0.5, y:0.5};
+        death.scale.setTo(3, 3);
+        death.rotation = c.rotation;
+        death.animations.add('die');
+        death.animations.play('die', 10, false);
+    }
+    // Update game state
+    this.state = this.DYING;
 };
-
 
 //------------------------------------------------------------------------------
 // Initialization functions
@@ -204,27 +207,22 @@ SB2.Play.prototype.initBackground = function() {
     }
 };
 
-/** Initialize game controls
-*/
-SB2.Play.prototype.initControls = function() {
-    var kb, control1, control2; // Reference to Keyboard and controls
-
-    kb = this.game.input.keyboard;
-    control1 = new SB2.Controls(kb.addKey(Phaser.Keyboard.FIVE),
-                null,
-                kb.addKey(Phaser.Keyboard.Y),
-                kb.addKey(Phaser.Keyboard.R));
-    control2 = new SB2.Controls(kb.addKey(Phaser.Keyboard.UP),
-                null,
-                kb.addKey(Phaser.Keyboard.RIGHT),
-                kb.addKey(Phaser.Keyboard.LEFT));
-
-    return [control1, control2];
+/** Initialize the controls for player 1 and 2 */
+SB2.Play.prototype.initControls = function () {
+    var kb = this.game.input.keyboard;
+    this.controls1 = new SB2.Controls(kb.addKey(Phaser.Keyboard.UP),
+                           null,
+                           kb.addKey(Phaser.Keyboard.RIGHT),
+                           kb.addKey(Phaser.Keyboard.LEFT));
+    this.controls2 = new SB2.Controls(kb.addKey(Phaser.Keyboard.FIVE),
+                           null,
+                           kb.addKey(Phaser.Keyboard.Y),
+                           kb.addKey(Phaser.Keyboard.R));
 };
 
 /** Initialize swap and swap indicators 
 */
-SB2.Play.prototype.initSwap = function(width, height, unit, indic_thick) {
+SB2.Play.prototype.initSwap = function() {
     var indic,  // Temporary variable to create swap indicators
     // constants shorthands
     H = SB2.HEIGHT, W = SB2.WIDTH,
