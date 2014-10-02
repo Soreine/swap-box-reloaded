@@ -1,4 +1,4 @@
-/* global Phaser */
+!/* global Phaser */
 "use strict";
 
 /** Swap Box Turbo 2 namespace */

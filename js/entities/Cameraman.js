@@ -1,12 +1,13 @@
-/* global SB2 */
+!/* global SB2 */
 /* global Phaser */
 "use strict";
 
 /** Instanciate a cameraman which will manage the camera motion  during the game 
-*   @param {Phaser.Camera} Camera the game camera he has to manage
-*   @param {Phaser.Time} Time of the game
-*   @param {Number} <optionnal> Speed Lateral speed of the camera, in unit per second
-*/
+ *   @param {Phaser.Camera} camera The game camera he has to manage
+ *   @param {Phaser.Time} time Time of the game
+ *   @param {Number} <optionnal> speed Lateral speed of the camera, in
+ *   unit per second
+ */
 SB2.Cameraman = function (camera, time, speed) {
     this.camera = camera; this.time = time;
 

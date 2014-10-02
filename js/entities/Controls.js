@@ -1,4 +1,4 @@
-/* global SB2 */
+!/* global SB2 */
 /* global Phaser */
 "use strict";
 

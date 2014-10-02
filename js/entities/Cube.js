@@ -69,11 +69,11 @@ SB2.Cube.prototype.myUpdate = function () {
 
         // Update state
         if(this.body.touching.down) {
-	    this.state = this.STANDING;
-	    this.rotation = 0;
+            this.state = this.STANDING;
+            this.rotation = 0;
         } else {
-	    this.state = this.AIRBORNE;
-	    this.rotation += 0.2;
+            this.state = this.AIRBORNE;
+            this.rotation += 0.2;
         }
         
         // Reset speed
@@ -87,16 +87,16 @@ SB2.Cube.prototype.myUpdate = function () {
 SB2.Cube.prototype.handleInputs = function () {
     // Reset speed
     if (this.controls.left.isDown) {
-	//  Move to the left
-	this.body.velocity.x = -SB2.LATERAL_SPEED;
+        //  Move to the left
+        this.body.velocity.x = -SB2.LATERAL_SPEED;
     } else if (this.controls.right.isDown) {
-	//  Move to the right
-	this.body.velocity.x = SB2.LATERAL_SPEED;
-    }	
+        //  Move to the right
+        this.body.velocity.x = SB2.LATERAL_SPEED;
+    }
     
     //  Allow the player to jump if they are touching the ground.
     if (this.state != this.AIRBORNE && this.controls.up.isDown) {
-	this.body.velocity.y = -SB2.JUMP_SPEED;
+        this.body.velocity.y = -SB2.JUMP_SPEED;
     }
 };
 

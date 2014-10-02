@@ -142,27 +142,27 @@ SB2.Play.prototype.handleSwap = function () {
     // Check the timer 
     if(this.game.time.elapsedSince(this.swap.timer) >
        this.swap.count*SB2.INDIC_PERIOD) {
-	    // If it's the last indicator
-	    if(this.swap.count == SB2.NUM_INDIC) {
-	        // Swap controls
-	        controls = this.cube1.controls;
-	        this.cube1.controls = this.cube2.controls;
-	        this.cube2.controls = controls;
-	        // Reset timer
-	        this.swap = {timer: this.game.time.now,
-		                 count: 1};
-	        // Make a primary flash
-	        this.swapIndicators.alpha = 1.0;
-	        this.swapTween.primary.start();
-	    } else {
+        // If it's the last indicator
+        if(this.swap.count == SB2.NUM_INDIC) {
+            // Swap controls
+            controls = this.cube1.controls;
+            this.cube1.controls = this.cube2.controls;
+            this.cube2.controls = controls;
+            // Reset timer
+            this.swap = {timer: this.game.time.now,
+                         count: 1};
+            // Make a primary flash
+            this.swapIndicators.alpha = 1.0;
+            this.swapTween.primary.start();
+        } else {
             if(SB2.SECONDARY_INDICATOR) {
-	            // Make a secondary flash
-	            this.swapIndicators.alpha = 0.1;
-	            this.swapTween.secondary.start();
+                // Make a secondary flash
+                this.swapIndicators.alpha = 0.1;
+                this.swapTween.secondary.start();
             }
-	        // Increment count
-	        this.swap.count++;
-	    }
+            // Increment count
+            this.swap.count++;
+        }
     }
 };
 
@@ -180,7 +180,7 @@ SB2.Play.prototype.deathTouch = function () {
 //------------------------------------------------------------------------------
 
 /** Initialize the backgrounds of the game area
-*/
+ */
 SB2.Play.prototype.initBackground = function() {
     var city, cityNames, i; // Used for temporary setting
 
@@ -204,10 +204,10 @@ SB2.Play.prototype.initLevel = function () {
     var ground;
 
     this.platforms = this.game.add.group(undefined, // Parent group
-			                 'platforms', // Name for debug
-			                 false, // Add directly to the stage
-			                 true, // Enable body
-			                 Phaser.Physics.ARCADE);
+                                         'platforms', // Name for debug
+                                         false, // Add directly to the stage
+                                         true, // Enable body
+                                         Phaser.Physics.ARCADE);
 
     // Here we create the ground.
     ground = this.platforms.create(0, SB2.HEIGHT - 2*SB2.UNIT, 'plain');
@@ -235,7 +235,7 @@ SB2.Play.prototype.initSwap = function () {
     var indic;
 
     this.swapIndicators = this.game.add.group(undefined, 'indicators', true, 
-				    false); // No body
+                                              false); // No body
     this.swapIndicators.alpha = 0;
 
     // Create 4 bars assembling into a frame
@@ -254,7 +254,7 @@ SB2.Play.prototype.initSwap = function () {
 
     // Init the indicator tweener
     this.swapTween = {primary: this.game.add.tween(this.swapIndicators),
-		      secondary: this.game.add.tween(this.swapIndicators)};
+                      secondary: this.game.add.tween(this.swapIndicators)};
     this.swapTween.primary.from({alpha:0}, SB2.INDIC_PERIOD/2);
     this.swapTween.secondary.from({alpha:0}, SB2.INDIC_PERIOD/4);
 
@@ -267,16 +267,11 @@ SB2.Play.prototype.initSwap = function () {
 SB2.Play.prototype.initControls = function () {
     var kb = this.game.input.keyboard;
     this.controls1 = new SB2.Controls(kb.addKey(Phaser.Keyboard.UP),
-			               null,
-			               kb.addKey(Phaser.Keyboard.RIGHT),
-			               kb.addKey(Phaser.Keyboard.LEFT));
+                                      null,
+                                      kb.addKey(Phaser.Keyboard.RIGHT),
+                                      kb.addKey(Phaser.Keyboard.LEFT));
     this.controls2 = new SB2.Controls(kb.addKey(Phaser.Keyboard.FIVE),
-			               null,
-			               kb.addKey(Phaser.Keyboard.Y),
-			               kb.addKey(Phaser.Keyboard.R));
+                                      null,
+                                      kb.addKey(Phaser.Keyboard.Y),
+                                      kb.addKey(Phaser.Keyboard.R));
 };
-
-
-
-
-
