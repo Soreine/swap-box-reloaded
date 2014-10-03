@@ -19,13 +19,12 @@ SB2.Play.prototype.constructor = SB2.Play;
 /** Controls of player 1 and 2 */
 SB2.Play.controls1;
 SB2.Play.controls2;
-
-/** This group contains all the solid and fixed platforms */
-SB2.Play.platforms;
-
 /** References to the cubes objects */
 SB2.Play.cube1;
 SB2.Play.cube2;
+/** This group contains all the solid and fixed platforms */
+SB2.Play.platforms;
+SB2.Play.screenLimit; /** Used to check when cubes hit the screen borders */
 SB2.Play.swap; /** Timer for controls swap */
 SB2.Play.swapIndicators; /** The group of HUD indicators for swap */
 SB2.Play.swapTween; /** Tween used to make the indicators flash */
@@ -61,19 +60,23 @@ SB2.Play.prototype.create = function () {
         instanciating a pseudo-random generator using a specific string
         that could be for example, the name of the level.
     */
-    this.seed = SB2.Biome.prototype.genSeed("Greta Svabo Bech");
+    this.seed = SB2.Biome.prototype.genSeed("Ta mere");
     this.randomizer = new SB2.Randomizer(this.seed);
 
     // Initialize the cameraman, the background and the swap indicators
     this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
-    this.initSwap();
+
+    // Initialize the screen limit
+    this.initScreenLimit();
+
     this.initBackground();
 
     // Preparing controls and cubes; btw, cube's position will be set by the biome
     this.initControls();
-    this.cube1 = new SB2.Cube(this.game, 200, 0, this.controls1);
-    this.cube2 = new SB2.Cube(this.game, 0, 0, this.controls2);
 
+    // Create cubes
+    this.cube1 = new SB2.Cube(this.game, 100, 500, this.controls1);
+    this.cube2 = new SB2.Cube(this.game, 300, 500, this.controls2);
     // Add them to the world
     this.game.add.existing(this.cube1);
     this.game.add.existing(this.cube2);
@@ -83,10 +86,10 @@ SB2.Play.prototype.create = function () {
     this.currentBiome.setCubesPositions(this.cube1, this.cube2);
     //this.currentBiome.setCameraPosition(this.cameraman);
     this.currentBiome.setUpContent(this.game);
-
     this.nextBiome = new SB2.BasicBiome(this.seed, 1000);
     this.nextBiome.setUpContent(this.game);
 
+    this.initSwap();
     // Finally, set up the correct state
     this.state = this.RUNNING;
 };
@@ -105,7 +108,7 @@ SB2.Play.prototype.update = function () {
 
 /** Update function that pause the game */
 SB2.Play.prototype.updateDying = function () {
-    if(this.cube1.state == SB2.Cube.prototype.DEAD && 
+    if(this.cube1.state == SB2.Cube.prototype.DEAD ||
        this.cube2.state == SB2.Cube.prototype.DEAD) {
         this.game.state.start('Play');
     } else {
@@ -129,9 +132,16 @@ SB2.Play.prototype.updateRunning = function () {
     this.cameraman.update(this.cube1, this.cube2, this.cities);
 
     //  Checks to see if the both cubes overlap
-    if(this.game.physics.arcade.overlap(this.cube1, this.cube2)) {
-        this.deathTouch();
-    }
+    if(this.game.physics.arcade.overlap(this.cube1, this.cube2)
+       || !this.game.physics.arcade.overlap(this.cube1, this.screenLimit)
+       || !this.game.physics.arcade.overlap(this.cube2, this.screenLimit)) {
+          // console.log(this.screenLimit);
+          this.deathTouch();
+      }
+};
+
+SB2.Play.prototype.render = function () {
+    //this.game.debug.spriteBounds(this.sprite);
 };
 
 //------------------------------------------------------------------------------
@@ -291,4 +301,16 @@ SB2.Play.prototype.initControls = function () {
                                       null,
                                       kb.addKey(Phaser.Keyboard.Y),
                                       kb.addKey(Phaser.Keyboard.R));
+};
+
+/** Initialize the screen limit used to check when cube exit the screen */
+SB2.Play.prototype.initScreenLimit = function () {
+    // An invisible rectangle that cover almost the entire screen,
+    // used for collision
+    //var sprite;
+    this.screenLimit = this.game.add.physicsGroup(
+        Phaser.Physics.ARCADE, null, 'screenLimit', true);
+    this.sprite = this.screenLimit.create(SB2.UNIT, SB2.UNIT);
+    this.sprite.width = SB2.WIDTH - 2*SB2.UNIT;
+    this.sprite.height = SB2.HEIGHT - 2*SB2.UNIT;
 };

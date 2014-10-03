@@ -15,10 +15,10 @@ SB2.BasicBiome.prototype.constructor = SB2.BasicBiome;
 SB2.BasicBiome.prototype = {
     /** @see SB2.Biome */
     setCubesPositions: function(cube1, cube2) {
-        console.log(cube2.y);
-        cube2.y = 500;
+        cube1.x = 500;
+        cube1.y = 400;
         cube2.x = 300;
-        console.log(cube2.y);
+        cube2.y = 400;
 
         // cube1.body.reset(100 + this.endOfLastBiome, 50);
         // cube2.body.reset(200 + this.endOfLastBiome, 50);
