@@ -73,7 +73,7 @@ SB2.Cube.prototype.myUpdate = function () {
             this.rotation = 0;
         } else {
             this.state = this.AIRBORNE;
-            this.rotation += 0.2;
+            this.rotation += this.ROTATION_SPEED;
         }
         
         // Handle inputs
@@ -97,7 +97,7 @@ SB2.Cube.prototype.handleInputs = function () {
     
     //  Allow the player to jump if they are touching the ground.
     if (this.state != this.AIRBORNE && this.controls.up.isDown) {
-        this.body.velocity.y = -SB2.JUMP_SPEED;
+        this.body.velocity.y = SB2.JUMP_SPEED;
     }
 };
 
@@ -136,3 +136,6 @@ SB2.Cube.prototype.DYING = 2;
 /** When dead */
 SB2.Cube.prototype.DEAD = 3;
 
+/** Rotation speed when airborne */
+SB2.Cube.prototype.ROTATION_SPEED = Math.PI*0.0167/SB2.JUMP_DURATION 
+// Frontflip !
