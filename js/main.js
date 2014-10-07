@@ -24,18 +24,27 @@ SB2.ASSETS = SB2.BASE_PATH + "js/assets/";
 SB2.UNIT = 30;
 
 /** The resolution of the game window */
-SB2.WIDTH = 780;
+SB2.WIDTH = 800;
 SB2.HEIGHT = 600;
 
 /** Background color */
 SB2.BACKGROUND_COLOR = 0xeeeeee;
 
-/** The gravity acceleration */
-SB2.GRAVITY = 3000;
-/** Lateral movement speed for the cubes */
-SB2.LATERAL_SPEED = 300;
+
+/** The duration of a jump on flat ground in seconds */
+SB2.JUMP_DURATION = 0.5;
+/** The height of a jump */
+SB2.JUMP_HEIGHT = SB2.UNIT*4;
+/** The height of a jump */
+SB2.JUMP_LENGTH = SB2.JUMP_HEIGHT*1.5;
+
 /** Jumping speed */
-SB2.JUMP_SPEED = 1000;
+SB2.JUMP_SPEED = -4*SB2.JUMP_HEIGHT/SB2.JUMP_DURATION;
+/** The gravity acceleration */
+SB2.GRAVITY = -2*SB2.JUMP_SPEED/SB2.JUMP_DURATION;
+/** Lateral movement speed for the cubes */
+SB2.LATERAL_SPEED = SB2.JUMP_LENGTH/SB2.JUMP_DURATION;
+
 
 /** Swap period in millis */
 SB2.SWAP_PERIOD = 2000;
