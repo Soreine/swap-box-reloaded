@@ -70,8 +70,9 @@ window.onload = function () {
     SB2.game = game;
 
     // Initialize all the states
+    SB2.STATES.loader = new SB2.Loader(game);
     SB2.STATES.play = new SB2.Play(game);
     
     // Start the first state
-    game.state.start("Play");
+    game.state.start("Loader");
 };

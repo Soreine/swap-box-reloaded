@@ -38,14 +38,7 @@ SB2.Play.prototype.RUNNING = 1;
 //------------------------------------------------------------------------------
 // State functions
 //------------------------------------------------------------------------------
-SB2.Play.prototype.preload = function () {
-    this.game.load.image('plain', SB2.ASSETS + '1.png'); // This is a plain color texture
-    this.game.load.image('plain2', SB2.ASSETS + '2.png'); // This is a plain color texture
-    this.game.load.image('plain3', SB2.ASSETS + '3.png'); // This is a plain color texture
-    this.game.load.image('city1', SB2.ASSETS + 'city1.png');
-    this.game.load.image('city2', SB2.ASSETS + 'city2.png');
-    this.game.load.spritesheet('death', SB2.ASSETS + 'death.png', 10, 10, 9);
-};
+SB2.Play.prototype.preload = function () {};
 
 SB2.Play.prototype.create = function () {    
     /* We will define below, everything that should be started and instanciated
