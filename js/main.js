@@ -55,7 +55,7 @@ SB2.STATES = {};
 //------------------------------------------------------------------------------
 window.onload = function () {
     /* Create a Game instance */
-    var game = new Phaser.Game(SB2.WIDTH, SB2.HEIGHT, Phaser.AUTO, '', null, false, false);
+    var game = new Phaser.Game(SB2.WIDTH, SB2.HEIGHT, Phaser.CANVAS, '', null, false, false);
     
     /** Reference to the game */
     SB2.game = game;

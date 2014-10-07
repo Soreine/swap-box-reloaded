@@ -18,7 +18,7 @@ SB2.Cameraman = function (camera, time, speed) {
 
 SB2.Cameraman.prototype = {
     /** Value of the default lateral speed of the camera in unit per frame */
-    DEFAULT_SPEED:  100,
+    DEFAULT_SPEED:  0,
 
     /** Update the camera position since the last update */
     update: function (cube1, cube2, cities) {
@@ -39,6 +39,6 @@ SB2.Cameraman.prototype = {
         // Handle the parallax effect on the background
         cities[0].tilePosition.x = -0.15*this.camera.x;
         cities[1].tilePosition.x = -0.3*this.camera.x;
-    }
+    },
 };
 

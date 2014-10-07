@@ -40,6 +40,8 @@ SB2.Play.prototype.RUNNING = 1;
 //------------------------------------------------------------------------------
 SB2.Play.prototype.preload = function () {
     this.game.load.image('plain', SB2.ASSETS + '1.png'); // This is a plain color texture
+    this.game.load.image('plain2', SB2.ASSETS + '2.png'); // This is a plain color texture
+    this.game.load.image('plain3', SB2.ASSETS + '3.png'); // This is a plain color texture
     this.game.load.image('city1', SB2.ASSETS + 'city1.png');
     this.game.load.image('city2', SB2.ASSETS + 'city2.png');
     this.game.load.spritesheet('death', SB2.ASSETS + 'death.png', 10, 10, 9);
@@ -60,34 +62,35 @@ SB2.Play.prototype.create = function () {
         instanciating a pseudo-random generator using a specific string
         that could be for example, the name of the level.
     */
-    this.seed = SB2.Biome.prototype.genSeed("Ta mere");
+    this.seed = SB2.Randomizer.prototype.genSeedFromPhrase("Greta Svabo Bech");
     this.randomizer = new SB2.Randomizer(this.seed);
+    this.sequencer = new SB2.BiomesSequencer(new SB2.Randomizer(this.randomizer.genSeed()));
 
     // Initialize the cameraman, the background and the swap indicators
     this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
 
     // Initialize the screen limit
     this.initScreenLimit();
-
     this.initBackground();
 
     // Preparing controls and cubes; btw, cube's position will be set by the biome
     this.initControls();
-
-    // Create cubes
     this.cube1 = new SB2.Cube(this.game, 100, 500, this.controls1);
     this.cube2 = new SB2.Cube(this.game, 300, 500, this.controls2);
+
     // Add them to the world
     this.game.add.existing(this.cube1);
     this.game.add.existing(this.cube2);
 
     // Create the two very first biomes
-    this.currentBiome = new SB2.BasicBiome(this.seed, 0);
+    this.currentBiome = new SB2.BasicBiome(this.seed, 0, 'plain');
     this.currentBiome.setCubesPositions(this.cube1, this.cube2);
-    //this.currentBiome.setCameraPosition(this.cameraman);
-    this.currentBiome.setUpContent(this.game);
-    this.nextBiome = new SB2.BasicBiome(this.seed, 1000);
-    this.nextBiome.setUpContent(this.game);
+    this.currentBiome.setCameraPosition(this.cameraman);
+
+    this.biomesStack = [new SB2.BasicBiome(this.seed, this.currentBiome.getWidth(), 'plain2'), this.currentBiome];
+    for(var i = 0; i < this.biomesStack.length; i++) {
+        this.biomesStack[i].setUpContent(this.game);
+    }
 
     this.initSwap();
     // Finally, set up the correct state
@@ -118,8 +121,20 @@ SB2.Play.prototype.updateDying = function () {
 };
 
 SB2.Play.prototype.updateRunning = function () {
+    var i, endOfLastBiome;
+
     //  Collide the cubes with the platforms
-    this.currentBiome.update(this.cube1, this.cube2, this.game);
+    if (!this.currentBiome.isVisible(this.camera)) {
+        endOfLastBiome = this.currentBiome.shiftBiomes(this.biomesStack, this.cube1, this.cube2, this.camera);
+        this.biomesStack.unshift (new SB2.BasicBiome(this.seed, endOfLastBiome, 'plain3'));
+        this.currentBiome = this.biomesStack.slice(-1).pop();
+    }
+
+    for(i = 0; i < this.biomesStack.length; i++) {
+        if (this.biomesStack[i].isVisible(this.camera)) {
+            this.biomesStack[i].update(this.cube1, this.cube2, this.game);
+        }
+    }
 
     // Control swap
     this.handleSwap();
@@ -141,7 +156,7 @@ SB2.Play.prototype.updateRunning = function () {
 };
 
 SB2.Play.prototype.render = function () {
-    //this.game.debug.spriteBounds(this.sprite);
+    this.game.debug.cameraInfo(this.game.camera, 500, 32);
 };
 
 //------------------------------------------------------------------------------
