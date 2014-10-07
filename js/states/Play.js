@@ -64,7 +64,6 @@ SB2.Play.prototype.create = function () {
     */
     this.seed = SB2.Randomizer.prototype.genSeedFromPhrase("Greta Svabo Bech");
     this.randomizer = new SB2.Randomizer(this.seed);
-    this.sequencer = new SB2.BiomesSequencer(new SB2.Randomizer(this.randomizer.genSeed()));
 
     // Initialize the cameraman, the background and the swap indicators
     this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
@@ -81,18 +80,11 @@ SB2.Play.prototype.create = function () {
     // Add them to the world
     this.game.add.existing(this.cube1);
     this.game.add.existing(this.cube2);
-
-    // Create the two very first biomes
-    this.currentBiome = new SB2.BasicBiome(this.seed, 0, 'plain');
-    this.currentBiome.setCubesPositions(this.cube1, this.cube2);
-    this.currentBiome.setCameraPosition(this.cameraman);
-
-    this.biomesStack = [new SB2.BasicBiome(this.seed, this.currentBiome.getWidth(), 'plain2'), this.currentBiome];
-    for(var i = 0; i < this.biomesStack.length; i++) {
-        this.biomesStack[i].setUpContent(this.game);
-    }
-
     this.initSwap();
+
+    // Start the biome Sequencer
+    this.sequencer = new SB2.BiomesSequencer(new SB2.Randomizer(this.randomizer.genSeed()), this.cube1, this.cube2, this.game);
+
     // Finally, set up the correct state
     this.state = this.RUNNING;
 };
@@ -123,19 +115,6 @@ SB2.Play.prototype.updateDying = function () {
 SB2.Play.prototype.updateRunning = function () {
     var i, endOfLastBiome;
 
-    //  Collide the cubes with the platforms
-    if (!this.currentBiome.isVisible(this.camera)) {
-        endOfLastBiome = this.currentBiome.shiftBiomes(this.biomesStack, this.cube1, this.cube2, this.camera);
-        this.biomesStack.unshift (new SB2.BasicBiome(this.seed, endOfLastBiome, 'plain3'));
-        this.currentBiome = this.biomesStack.slice(-1).pop();
-    }
-
-    for(i = 0; i < this.biomesStack.length; i++) {
-        if (this.biomesStack[i].isVisible(this.camera)) {
-            this.biomesStack[i].update(this.cube1, this.cube2, this.game);
-        }
-    }
-
     // Control swap
     this.handleSwap();
 
@@ -145,11 +124,15 @@ SB2.Play.prototype.updateRunning = function () {
     
     // Tell the cameraman to follow players positions
     this.cameraman.update(this.cube1, this.cube2, this.cities);
+    
+    //Update all biomes
+    this.sequencer.updateBiomes(this.cube1, this.cube2, this.game);
 
     //  Checks to see if the both cubes overlap
     if(this.game.physics.arcade.overlap(this.cube1, this.cube2)
        || !this.game.physics.arcade.overlap(this.cube1, this.screenLimit)
        || !this.game.physics.arcade.overlap(this.cube2, this.screenLimit)) {
+            console.log(this.screenLimit);
           // console.log(this.screenLimit);
           this.deathTouch();
       }

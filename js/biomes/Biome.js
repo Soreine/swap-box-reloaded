@@ -41,9 +41,11 @@ SB2.Biome.prototype = {
     setUpContent: function(game) {},
 
     /** Update all  component of the Biome that shoud be
+    * @param {Cube} cube1 Instance of the first player
+    * @param {Cube} cube2 Instance of the first player
     * @param {Phaser.game} game Instance of the current game
     */
-    update: function(game) {},
+    update: function(cube1, cube2, game) {},
 
     /** Shift the abscissa coordinates of a biome and all his elements
     *   @param {Number} offset The offset of the shift
@@ -57,25 +59,6 @@ SB2.Biome.prototype = {
         var infWidth, supWidth;
         infWidth = camera.x; supWidth = camera.x + camera.width;
         return !(this.endOfLastBiome > supWidth || this.endOfLastBiome + this.width < infWidth);
-    },
-
-    /** Shift all abscissas coordinates of a biome stack in order
-    *   to put the first biome at the abscissa 0. Then return the
-    *   end abscissa of the last biome 
-    */
-    shiftBiomes: function(biomesStack, cube1, cube2, camera) {
-        var i, offset;
-
-        offset = biomesStack.pop().getWidth();
-        for (i = 0; i < biomesStack.length; i++) {
-            biomesStack[i].shift(offset);
-        }
-
-        cube1.x -= offset;
-        cube2.x -= offset;
-        camera.x -= offset;
-
-        return biomesStack[0].getWidth() + biomesStack[0].endOfLastBiome;
     },
 
     /** Return the length of the biome */

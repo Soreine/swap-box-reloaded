@@ -19,14 +19,17 @@ SB2.Biome.prototype.register(SB2.BasicBiome);
 
 /** @see SB2.Biome */
 SB2.BasicBiome.prototype.setCubesPositions = function(cube1, cube2) {
-    cube1.x = 500;
+    cube1.x = 500 + this.endOfLastBiome;
     cube1.y = 400;
-    cube2.x = 300;
+    cube2.x = 300 + this.endOfLastBiome; 
     cube2.y = 400;
 };
 
 /** @see SB2.Biome */
-SB2.BasicBiome.prototype.setCameraPosition = function(camera) { };
+SB2.BasicBiome.prototype.setCameraPosition = function(camera) {
+    camera.x = 0 + this.endOfLastBiome;
+    camera.y = 0;
+};
 
 /** @see SB2.Biome */
 SB2.BasicBiome.prototype.setUpContent = function(game) {
