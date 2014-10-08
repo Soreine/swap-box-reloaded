@@ -28,7 +28,7 @@ SB2.WIDTH = 800;
 SB2.HEIGHT = 600;
 
 /** Background color */
-SB2.BACKGROUND_COLOR = 0xeeeeee;
+SB2.BACKGROUND_COLOR = 0xffffff;
 
 
 /** The duration of a jump on flat ground in seconds */

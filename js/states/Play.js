@@ -98,7 +98,7 @@ SB2.Play.prototype.update = function () {
 SB2.Play.prototype.updateDying = function () {
     if(this.cube1.state == SB2.Cube.prototype.DEAD ||
        this.cube2.state == SB2.Cube.prototype.DEAD) {
-        this.game.state.start('Play');
+        //this.game.state.start('Play');
     } else {
         this.cube1.myUpdate();
         this.cube2.myUpdate();
@@ -110,10 +110,6 @@ SB2.Play.prototype.updateRunning = function () {
 
     // Control swap
     this.handleSwap();
-
-    // Update cubes states
-    this.cube1.myUpdate();
-    this.cube2.myUpdate();
     
     // Tell the cameraman to follow players positions
     this.cameraman.update(this.cube1, this.cube2, this.cities);
@@ -121,6 +117,10 @@ SB2.Play.prototype.updateRunning = function () {
     //Update all biomes
     this.sequencer.updateBiomes(this.cube1, this.cube2, this.game);
 
+    // Update cubes states
+    this.cube1.myUpdate();
+    this.cube2.myUpdate();
+    
     //  Checks to see if the both cubes overlap
     if(this.game.physics.arcade.overlap(this.cube1, this.cube2)
        || !this.game.physics.arcade.overlap(this.cube1, this.screenLimit)
