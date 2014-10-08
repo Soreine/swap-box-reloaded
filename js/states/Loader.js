@@ -31,7 +31,7 @@ SB2.Loader.prototype.preload = function () {
     this.game.load.image('city1', SB2.ASSETS + 'city1.png');
     this.game.load.image('city2', SB2.ASSETS + 'city2.png');
     this.game.load.spritesheet('death', SB2.ASSETS + 'death.png', 10, 10, 9);
-
+    this.game.load.spritesheet('spirits', SB2.ASSETS + 'spirits.png', 16, 16, 2);
     this.ready = true;
 };
 

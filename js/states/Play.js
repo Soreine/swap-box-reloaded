@@ -67,12 +67,9 @@ SB2.Play.prototype.create = function () {
 
     // Preparing controls and cubes; btw, cube's position will be set by the biome
     this.initControls();
-    this.cube1 = new SB2.Cube(this.game, 100, 500, this.controls1);
-    this.cube2 = new SB2.Cube(this.game, 300, 500, this.controls2);
+    this.cube1 = new SB2.Cube(this.game, 100, 500, this.controls1, 0);
+    this.cube2 = new SB2.Cube(this.game, 300, 500, this.controls2, 1);
 
-    // Add them to the world
-    this.game.add.existing(this.cube1);
-    this.game.add.existing(this.cube2);
     this.initSwap();
 
     // Start the biome Sequencer
@@ -141,18 +138,13 @@ SB2.Play.prototype.render = function () {
 /** Measure time and swap controls if needed. Also in charge to
  * display timing indicators */
 SB2.Play.prototype.handleSwap = function () {
-    // For controls swapping
-    var controls;
-
     // Check the timer 
     if(this.game.time.elapsedSince(this.swap.timer) >
        this.swap.count*SB2.INDIC_PERIOD) {
         // If it's the last indicator
         if(this.swap.count == SB2.NUM_INDIC) {
-            // Swap controls
-            controls = this.cube1.controls;
-            this.cube1.controls = this.cube2.controls;
-            this.cube2.controls = controls;
+            // Make a swap
+            SB2.Cube.swap(this.cube1, this.cube2);
             // Reset timer
             this.swap = {timer: this.game.time.now,
                          count: 1};
