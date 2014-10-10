@@ -78,11 +78,14 @@ SB2.Play.prototype.create = function () {
     // Start the biome Sequencer
     this.sequencer = new SB2.BiomesSequencer(new SB2.Randomizer(this.randomizer.genSeed()), this.cube1, this.cube2, this.game);
 
+    this.text = this.game.add.text(0, 0, "");
+
     // Finally, set up the correct state
     this.state = this.RUNNING;
 };
 
 SB2.Play.prototype.update = function () {
+    this.text.text = document.getElementById('seed').value;
     // According to game state
     switch(this.state) {
     case this.DYING:
