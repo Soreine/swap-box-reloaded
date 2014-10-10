@@ -30,9 +30,9 @@ SB2.Loader.prototype.preload = function () {
     this.game.load.image('plain3', SB2.ASSETS + '3.png'); // This is a plain color texture
     this.game.load.image('city1', SB2.ASSETS + 'city1.png');
     this.game.load.image('city2', SB2.ASSETS + 'city2.png');
+    this.game.load.spritesheet('mute', SB2.ASSETS + 'mute.png', 50, 50, 2);
     this.game.load.spritesheet('death', SB2.ASSETS + 'death.png', 10, 10, 9);
     this.game.load.spritesheet('spirits', SB2.ASSETS + 'spirits.png', 16, 16, 2);
-
     this.game.load.audio('music', SB2.ASSETS + 'swap.ogg');
 
     this.game.sound.mute = SB2.muted;

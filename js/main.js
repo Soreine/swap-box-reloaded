@@ -61,7 +61,7 @@ SB2.INDIC_THICK = 10;
 SB2.STATES = {};
 
 /** Is the music muted ? */
-SB2.muted = false;
+SB2.muted = true;
 
 //------------------------------------------------------------------------------
 window.onload = function () {

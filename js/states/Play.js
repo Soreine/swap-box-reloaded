@@ -70,7 +70,8 @@ SB2.Play.prototype.create = function () {
     this.cube1 = new SB2.Cube(this.game, 100, 500, this.controls1, 0);
     this.cube2 = new SB2.Cube(this.game, 300, 500, this.controls2, 1);
 
-    this.music = this.game.add.audio('music');
+    // Init music
+    this.initMusic();
 
     this.initSwap();
 
@@ -137,16 +138,6 @@ SB2.Play.prototype.updateRunning = function () {
       }
 };
 
-SB2.Play.prototype.onPaused = function () {
-    this.swap.timer.pause();
-    this.music.pause();
-};
-
-SB2.Play.prototype.onResumed = function () {
-    this.swap.timer.resume();
-    this.music.resume();
-};
-
 SB2.Play.prototype.render = function () {
     this.game.debug.cameraInfo(this.game.camera, 500, 32);
 };
@@ -185,6 +176,17 @@ SB2.Play.prototype.deathTouch = function () {
     this.cube2.die();
     // Update game state
     this.state = this.DYING;
+};
+
+
+SB2.Play.prototype.onPaused = function () {
+    this.swap.timer.pause();
+    this.music.pause();
+};
+
+SB2.Play.prototype.onResumed = function () {
+    this.swap.timer.resume();
+    this.music.resume();
 };
 
 //------------------------------------------------------------------------------
@@ -316,3 +318,27 @@ SB2.Play.prototype.initScreenLimit = function () {
     this.sprite.width = SB2.WIDTH - 2*SB2.UNIT;
     this.sprite.height = SB2.HEIGHT - 2*SB2.UNIT;
 };
+
+SB2.Play.prototype.initMusic = function () {
+    function muteFunction () {
+        if(this.game.sound.mute) {
+            // Demute
+            // Update button icon
+            this.muteButton.frame = 0;
+            this.game.sound.mute = false;
+        } else {
+            // Mute
+            this.muteButton.frame = 1;        
+            this.game.sound.mute = true;
+        }
+    }
+
+    // Init music
+    this.music = this.game.add.audio('music');
+
+    // Init mute button
+    this.muteButton = this.game.add.button(0, 0, 'mute', muteFunction, this);
+    this.muteButton.frame = SB2.muted ? 1 : 0;
+    this.muteButton.alpha = 0.5;
+    this.muteButton.fixedToCamera = true;
+}
