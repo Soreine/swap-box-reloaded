@@ -47,15 +47,15 @@ SB2.LATERAL_SPEED = SB2.JUMP_LENGTH/SB2.JUMP_DURATION;
 
 
 /** Swap period in millis */
-SB2.SWAP_PERIOD = 2000;
+SB2.SWAP_PERIOD = 1500;
 /** Activate secondary flash */
 SB2.SECONDARY_INDICATOR = false;
 /** Number of flashes between two swap */
-SB2.NUM_INDIC = 3;
+SB2.NUM_INDIC = 4;
 /** Secondary Indicator period */
 SB2.INDIC_PERIOD = SB2.SWAP_PERIOD/SB2.NUM_INDIC;
 /** Indicator thickness */
-SB2.INDIC_THICK = SB2.UNIT/3;
+SB2.INDIC_THICK = 10;
 
 /** The different game states */
 SB2.STATES = {};

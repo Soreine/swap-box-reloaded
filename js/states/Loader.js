@@ -31,7 +31,9 @@ SB2.Loader.prototype.preload = function () {
     this.game.load.image('city1', SB2.ASSETS + 'city1.png');
     this.game.load.image('city2', SB2.ASSETS + 'city2.png');
     this.game.load.spritesheet('death', SB2.ASSETS + 'death.png', 10, 10, 9);
+    this.game.load.spritesheet('spirits', SB2.ASSETS + 'spirits.png', 16, 16, 2);
 
+    this.game.load.audio('music', SB2.ASSETS + 'swap.ogg');
     this.ready = true;
 };
 
@@ -39,5 +41,13 @@ SB2.Loader.prototype.create = function () {
 };
 
 SB2.Loader.prototype.update = function () {
-    this.game.state.start("Play");
+    // If assets are loaded AND music are loaded and decoded
+    if(this.ready && this.checkDecoded()) {
+        this.ready = true;
+        this.game.state.start("Play");
+    }
+};
+
+SB2.Loader.prototype.checkDecoded = function () {
+    return this.cache.isSoundDecoded('music');
 };

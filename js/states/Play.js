@@ -67,14 +67,13 @@ SB2.Play.prototype.create = function () {
 
     // Preparing controls and cubes; btw, cube's position will be set by the biome
     this.initControls();
-    this.cube1 = new SB2.Cube(this.game, 100, 500, this.controls1);
-    this.cube2 = new SB2.Cube(this.game, 300, 500, this.controls2);
+    this.cube1 = new SB2.Cube(this.game, 100, 500, this.controls1, 0);
+    this.cube2 = new SB2.Cube(this.game, 300, 500, this.controls2, 1);
 
-    // Add them to the world
-    this.game.add.existing(this.cube1);
-    this.game.add.existing(this.cube2);
+    this.music = this.game.add.audio('music');
     this.initSwap();
 
+    
     // Start the biome Sequencer
     this.sequencer = new SB2.BiomesSequencer(new SB2.Randomizer(this.randomizer.genSeed()), this.cube1, this.cube2, this.game);
 
@@ -144,21 +143,12 @@ SB2.Play.prototype.render = function () {
 /** Measure time and swap controls if needed. Also in charge to
  * display timing indicators */
 SB2.Play.prototype.handleSwap = function () {
-    // For controls swapping
-    var controls;
-
     // Check the timer 
-    if(this.game.time.elapsedSince(this.swap.timer) >
-       this.swap.count*SB2.INDIC_PERIOD) {
+    if(this.game.time.elapsedSince(this.swap.timer) > SB2.INDIC_PERIOD*this.swap.count) {
         // If it's the last indicator
-        if(this.swap.count == SB2.NUM_INDIC) {
-            // Swap controls
-            controls = this.cube1.controls;
-            this.cube1.controls = this.cube2.controls;
-            this.cube2.controls = controls;
-            // Reset timer
-            this.swap = {timer: this.game.time.now,
-                         count: 1};
+        if(this.swap.count%SB2.NUM_INDIC == 2) {
+            // Make a swap
+            SB2.Cube.swap(this.cube1, this.cube2);
             // Make a primary flash
             this.swapIndicators.alpha = 1.0;
             this.swapTween.primary.start();
@@ -168,9 +158,10 @@ SB2.Play.prototype.handleSwap = function () {
                 this.swapIndicators.alpha = 0.1;
                 this.swapTween.secondary.start();
             }
-            // Increment count
-            this.swap.count++;
         }
+
+        // update the swap
+        this.swap.count++;
     }
 };
 
@@ -282,6 +273,8 @@ SB2.Play.prototype.initSwap = function () {
     // Init swap timer
     this.swap = {timer:this.game.time.now,
                  count:0};
+    this.music.play("", 0, 1, true);
+    this.music.loop = true;
 };
 
 /** Initialize the controls for player 1 and 2 */
