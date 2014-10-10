@@ -24,16 +24,13 @@ SB2.Biome.prototype = {
         SB2.Biome.list.push(biome);
     },
 
-    /** Set up the position of both cubes when starting the level with that Biome
+    /** Set up the position of both cubes , camera and other stuff when starting the level with that Biome
     * @param {Cube} cube1 First of the two cubes to set up
     * @param {Cube} cube2 Second of the two cubes to set up
-    */
-    setCubesPositions: function(cube1, cube2) {},
-
-    /** Set up the position of the camera when starting the level with that Biome
     * @param {Phaser.Camera} camera The game camera
+    * @param {Phaser.Sprite} screenLimit Trigger of the screen limit
     */
-    setCameraPosition: function(camera) {},
+    setPositions: function(cube1, cube2, camera, screenLimit) {},
 
     /** Instanciate all platforms and entities that will occures in the Biome 
     * @param {Phaser.Game} game Instance of the current game 
@@ -52,13 +49,14 @@ SB2.Biome.prototype = {
     */
     shift: function(offset) {}, 
 
-    /** Evaluate whether a biome is visible or not.
+    /** Remove the biome from the game */
+    killYourself: function() {},
+
+    /** Evaluate whether a biome has been displayed or not
     * @param {Object} The entity to evaluate
     */
-    isVisible: function(camera) {
-        var infWidth, supWidth;
-        infWidth = camera.x; supWidth = camera.x + camera.width;
-        return !(this.endOfLastBiome > supWidth || this.endOfLastBiome + this.width < infWidth);
+    hasBeenDisplayed: function(camera) {
+        return !(this.endOfLastBiome + this.width < camera.x); 
     },
 
     /** Return the length of the biome */

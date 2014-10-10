@@ -65,17 +65,17 @@ SB2.Play.prototype.create = function () {
     this.seed = SB2.Randomizer.prototype.genSeedFromPhrase("Greta Svabo Bech");
     this.randomizer = new SB2.Randomizer(this.seed);
 
+    // Initialize the screen limit
+    this.initBackground();
+    this.initScreenLimit();
+
     // Initialize the cameraman, the background and the swap indicators
     this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
 
-    // Initialize the screen limit
-    this.initScreenLimit();
-    this.initBackground();
-
     // Preparing controls and cubes; btw, cube's position will be set by the biome
     this.initControls();
-    this.cube1 = new SB2.Cube(this.game, 100, 500, this.controls1);
-    this.cube2 = new SB2.Cube(this.game, 300, 500, this.controls2);
+    this.cube1 = new SB2.Cube(this.game, 0, 400, this.controls1);
+    this.cube2 = new SB2.Cube(this.game, 0, 400, this.controls2);
 
     // Add them to the world
     this.game.add.existing(this.cube1);
@@ -83,7 +83,10 @@ SB2.Play.prototype.create = function () {
     this.initSwap();
 
     // Start the biome Sequencer
-    this.sequencer = new SB2.BiomesSequencer(new SB2.Randomizer(this.randomizer.genSeed()), this.cube1, this.cube2, this.game);
+    this.sequencer = new SB2.BiomesSequencer(
+        new SB2.Randomizer(this.randomizer.genSeed()), 
+        this.cube1, this.cube2, 
+        this.screenLimit, this.game);
 
     // Finally, set up the correct state
     this.state = this.RUNNING;
@@ -118,28 +121,31 @@ SB2.Play.prototype.updateRunning = function () {
     // Control swap
     this.handleSwap();
 
+    //Update all biomes
+    this.sequencer.updateBiomes();
+
     // Update cubes states
     this.cube1.myUpdate();
     this.cube2.myUpdate();
     
     // Tell the cameraman to follow players positions
     this.cameraman.update(this.cube1, this.cube2, this.cities);
-    
-    //Update all biomes
-    this.sequencer.updateBiomes(this.cube1, this.cube2, this.game);
 
     //  Checks to see if the both cubes overlap
-    if(this.game.physics.arcade.overlap(this.cube1, this.cube2)
-       || !this.game.physics.arcade.overlap(this.cube1, this.screenLimit)
-       || !this.game.physics.arcade.overlap(this.cube2, this.screenLimit)) {
-            console.log(this.screenLimit);
-          // console.log(this.screenLimit);
-          this.deathTouch();
-      }
+    // if(this.game.physics.arcade.overlap(this.cube1, this.screenLimit)){
+    //     console.log(JSON.stringify(this.trigger.position));
+    // }
+
+    // if(this.game.physics.arcade.overlap(this.cube1, this.cube2)
+    //    || !this.game.physics.arcade.overlap(this.cube1, this.screenLimit)
+    //    || !this.game.physics.arcade.overlap(this.cube2, this.screenLimit)) {
+    //       this.deathTouch();
+    //   }
 };
 
 SB2.Play.prototype.render = function () {
-    this.game.debug.cameraInfo(this.game.camera, 500, 32);
+    this.game.debug.cameraInfo(this.game.camera, 25, 32);    
+    this.game.debug.bodyInfo(this.cube1, 500, 32);    
 };
 
 //------------------------------------------------------------------------------
@@ -305,10 +311,9 @@ SB2.Play.prototype.initControls = function () {
 SB2.Play.prototype.initScreenLimit = function () {
     // An invisible rectangle that cover almost the entire screen,
     // used for collision
-    //var sprite;
-    this.screenLimit = this.game.add.physicsGroup(
-        Phaser.Physics.ARCADE, null, 'screenLimit', true);
-    this.sprite = this.screenLimit.create(SB2.UNIT, SB2.UNIT);
-    this.sprite.width = SB2.WIDTH - 2*SB2.UNIT;
-    this.sprite.height = SB2.HEIGHT - 2*SB2.UNIT;
+    var trigger = this.game.add.sprite(SB2.UNIT, SB2.UNIT, null, 0, this.screenLimit);
+    this.game.physics.arcade.enable(trigger);
+    trigger.body.setSize(SB2.WIDTH - 2*SB2.UNIT, SB2.HEIGHT - 2*SB2.UNIT);
+    trigger.fixedToCamera = true;
+    this.screenLimit = trigger;
 };
