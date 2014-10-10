@@ -34,6 +34,9 @@ SB2.Loader.prototype.preload = function () {
     this.game.load.spritesheet('spirits', SB2.ASSETS + 'spirits.png', 16, 16, 2);
 
     this.game.load.audio('music', SB2.ASSETS + 'swap.ogg');
+
+    this.game.sound.mute = SB2.muted;
+
     this.ready = true;
 };
 

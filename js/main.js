@@ -60,6 +60,8 @@ SB2.INDIC_THICK = 10;
 /** The different game states */
 SB2.STATES = {};
 
+/** Is the music muted ? */
+SB2.muted = false;
 
 //------------------------------------------------------------------------------
 window.onload = function () {

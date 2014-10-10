@@ -71,9 +71,13 @@ SB2.Play.prototype.create = function () {
     this.cube2 = new SB2.Cube(this.game, 300, 500, this.controls2, 1);
 
     this.music = this.game.add.audio('music');
+
     this.initSwap();
 
-    
+    // Add events when paused
+    this.game.onPause.add(this.onPaused, this);
+    this.game.onResume.add(this.onResumed, this);
+
     // Start the biome Sequencer
     this.sequencer = new SB2.BiomesSequencer(new SB2.Randomizer(this.randomizer.genSeed()), this.cube1, this.cube2, this.game);
 
@@ -133,6 +137,16 @@ SB2.Play.prototype.updateRunning = function () {
       }
 };
 
+SB2.Play.prototype.onPaused = function () {
+    this.swap.timer.pause();
+    this.music.pause();
+};
+
+SB2.Play.prototype.onResumed = function () {
+    this.swap.timer.resume();
+    this.music.resume();
+};
+
 SB2.Play.prototype.render = function () {
     this.game.debug.cameraInfo(this.game.camera, 500, 32);
 };
@@ -144,7 +158,7 @@ SB2.Play.prototype.render = function () {
  * display timing indicators */
 SB2.Play.prototype.handleSwap = function () {
     // Check the timer 
-    if(this.game.time.elapsedSince(this.swap.timer) > SB2.INDIC_PERIOD*this.swap.count) {
+    if(this.swap.timer.elapsed() > SB2.INDIC_PERIOD*this.swap.count) {
         // If it's the last indicator
         if(this.swap.count%SB2.NUM_INDIC == 2) {
             // Make a swap
@@ -271,8 +285,9 @@ SB2.Play.prototype.initSwap = function () {
     this.swapTween.secondary.from({alpha:0}, P/4);
 
     // Init swap timer
-    this.swap = {timer:this.game.time.now,
+    this.swap = {timer: new SB2.Timer(this.game),
                  count:0};
+    this.swap.timer.start();
     this.music.play("", 0, 1, true);
     this.music.loop = true;
 };
