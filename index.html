@@ -7,10 +7,27 @@
      body {
        margin: 0;
      }
+     #SB {
+       position:relative;
+     }
+     .overlay {
+       position:absolute;
+       z-index:2;
+     }
+     #SB canvas {
+       position:absolute;
+       top:0;
+       left:0;
+       z-index:1;
+     }
     </style>
   </head>
   <body>
-    
+    <div id="SB">
+      <div class="overlay">
+        Test
+      </div>
+    </div>
 
     <script  src="/js/libs/phaser.min.js"></script>
     <script  src="/js/main.js"></script>
