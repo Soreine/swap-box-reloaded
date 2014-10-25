@@ -58,24 +58,33 @@ SB2.Play.prototype.create = function () {
     this.seed = SB2.Randomizer.prototype.genSeedFromPhrase("Greta Svabo Bech");
     this.randomizer = new SB2.Randomizer(this.seed);
 
+    // Initialize the screen limit
+    this.initBackground();
+    this.initScreenLimit();
+
     // Initialize the cameraman, the background and the swap indicators
     this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
 
-    // Initialize the screen limit
-    this.initScreenLimit();
-    this.initBackground();
-
     // Preparing controls and cubes; btw, cube's position will be set by the biome
     this.initControls();
-    this.cube1 = new SB2.Cube(this.game, 100, 500, this.controls1, 0);
-    this.cube2 = new SB2.Cube(this.game, 300, 500, this.controls2, 1);
+    this.cube1 = new SB2.Cube(this.game, 0, 500, this.controls1, 0);
+    this.cube2 = new SB2.Cube(this.game, 0, 500, this.controls2, 1);
 
-    this.music = this.game.add.audio('music');
+    // Init music
+    this.initMusic();
     this.initSwap();
 
-    
+    // Add events when paused
+    this.game.onPause.add(this.onPaused, this);
+    this.game.onResume.add(this.onResumed, this);
+
     // Start the biome Sequencer
-    this.sequencer = new SB2.BiomesSequencer(new SB2.Randomizer(this.randomizer.genSeed()), this.cube1, this.cube2, this.game);
+    this.sequencer = new SB2.BiomesSequencer(
+        new SB2.Randomizer(this.randomizer.genSeed()), 
+        this.cube1, this.cube2, 
+        this.screenLimit, this.game);
+
+    this.text = this.game.add.text(0, 0, "");
 
     // Finally, set up the correct state
     this.state = this.RUNNING;
@@ -110,28 +119,31 @@ SB2.Play.prototype.updateRunning = function () {
     // Control swap
     this.handleSwap();
     
+    //Update all biomes
+    this.sequencer.updateBiomes();
+    
     // Tell the cameraman to follow players positions
     this.cameraman.update(this.cube1, this.cube2, this.cities);
-    
-    //Update all biomes
-    this.sequencer.updateBiomes(this.cube1, this.cube2, this.game);
 
     // Update cubes states
     this.cube1.myUpdate();
     this.cube2.myUpdate();
     
     //  Checks to see if the both cubes overlap
-    if(this.game.physics.arcade.overlap(this.cube1, this.cube2)
-       || !this.game.physics.arcade.overlap(this.cube1, this.screenLimit)
-       || !this.game.physics.arcade.overlap(this.cube2, this.screenLimit)) {
-            console.log(this.screenLimit);
-          // console.log(this.screenLimit);
-          this.deathTouch();
-      }
+    // if(this.game.physics.arcade.overlap(this.cube1, this.screenLimit)){
+    //     console.log(JSON.stringify(this.trigger.position));
+    // }
+
+    // if(this.game.physics.arcade.overlap(this.cube1, this.cube2)
+    //    || !this.game.physics.arcade.overlap(this.cube1, this.screenLimit)
+    //    || !this.game.physics.arcade.overlap(this.cube2, this.screenLimit)) {
+    //       this.deathTouch();
+    //   }
 };
 
 SB2.Play.prototype.render = function () {
-    this.game.debug.cameraInfo(this.game.camera, 500, 32);
+    this.game.debug.cameraInfo(this.game.camera, 25, 32);    
+    this.game.debug.bodyInfo(this.cube1, 500, 32);    
 };
 
 //------------------------------------------------------------------------------
@@ -141,7 +153,7 @@ SB2.Play.prototype.render = function () {
  * display timing indicators */
 SB2.Play.prototype.handleSwap = function () {
     // Check the timer 
-    if(this.game.time.elapsedSince(this.swap.timer) > SB2.INDIC_PERIOD*this.swap.count) {
+    if(this.swap.timer.elapsed() > SB2.INDIC_PERIOD*this.swap.count) {
         // If it's the last indicator
         if(this.swap.count%SB2.NUM_INDIC == 2) {
             // Make a swap
@@ -168,6 +180,17 @@ SB2.Play.prototype.deathTouch = function () {
     this.cube2.die();
     // Update game state
     this.state = this.DYING;
+};
+
+
+SB2.Play.prototype.onPaused = function () {
+    this.swap.timer.pause();
+    this.music.pause();
+};
+
+SB2.Play.prototype.onResumed = function () {
+    this.swap.timer.resume();
+    this.music.resume();
 };
 
 //------------------------------------------------------------------------------
@@ -268,8 +291,9 @@ SB2.Play.prototype.initSwap = function () {
     this.swapTween.secondary.from({alpha:0}, P/4);
 
     // Init swap timer
-    this.swap = {timer:this.game.time.now,
+    this.swap = {timer: new SB2.Timer(this.game),
                  count:0};
+    this.swap.timer.start();
     this.music.play("", 0, 1, true);
     this.music.loop = true;
 };
@@ -291,10 +315,33 @@ SB2.Play.prototype.initControls = function () {
 SB2.Play.prototype.initScreenLimit = function () {
     // An invisible rectangle that cover almost the entire screen,
     // used for collision
-    //var sprite;
-    this.screenLimit = this.game.add.physicsGroup(
-        Phaser.Physics.ARCADE, null, 'screenLimit', true);
-    this.sprite = this.screenLimit.create(SB2.UNIT, SB2.UNIT);
-    this.sprite.width = SB2.WIDTH - 2*SB2.UNIT;
-    this.sprite.height = SB2.HEIGHT - 2*SB2.UNIT;
+    var trigger = this.game.add.sprite(SB2.UNIT, SB2.UNIT, null, 0, this.screenLimit);
+    this.game.physics.arcade.enable(trigger);
+    trigger.body.setSize(SB2.WIDTH - 2*SB2.UNIT, SB2.HEIGHT - 2*SB2.UNIT);
+    trigger.fixedToCamera = true;
+    this.screenLimit = trigger;
+};
+
+SB2.Play.prototype.initMusic = function () {
+    function muteFunction () {
+        if(this.game.sound.mute) {
+            // Demute
+            // Update button icon
+            this.muteButton.frame = 0;
+            this.game.sound.mute = false;
+        } else {
+            // Mute
+            this.muteButton.frame = 1;        
+            this.game.sound.mute = true;
+        }
+    }
+
+    // Init music
+    this.music = this.game.add.audio('music');
+
+    // Init mute button
+    this.muteButton = this.game.add.button(0, 0, 'mute', muteFunction, this);
+    this.muteButton.frame = SB2.muted ? 1 : 0;
+    this.muteButton.alpha = 0.5;
+    this.muteButton.fixedToCamera = true;
 };

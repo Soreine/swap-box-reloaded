@@ -60,17 +60,20 @@ SB2.INDIC_THICK = 10;
 /** The different game states */
 SB2.STATES = {};
 
+/** Is the music muted ? */
+SB2.muted = true;
 
 //------------------------------------------------------------------------------
 window.onload = function () {
     /* Create a Game instance */
-    var game = new Phaser.Game(SB2.WIDTH, SB2.HEIGHT, Phaser.CANVAS, 'SB', null, false, false);
+    var game = new Phaser.Game(SB2.WIDTH, SB2.HEIGHT, Phaser.CANVAS, 'SB2', null, false, false);
     
     /** Reference to the game */
     SB2.game = game;
 
     // Initialize all the states
     SB2.STATES.loader = new SB2.Loader(game);
+    SB2.STATES.menu = new SB2.Menu(game);
     SB2.STATES.play = new SB2.Play(game);
     
     // Start the first state
