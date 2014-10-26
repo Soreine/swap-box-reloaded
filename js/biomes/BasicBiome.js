@@ -3,10 +3,10 @@
 "use strict";
 
 /** @see Biome */
-SB2.BasicBiome = function (randomizer, endOfLastBiome) {
+SB2.BasicBiome = function (randomizer, endOfLastBiome, game) {
     // Call the parent constructor
-    SB2.Biome.call(this, randomizer, endOfLastBiome);
-    this.width = 500;
+    this.width = 1000;
+    SB2.Biome.call(this, randomizer, endOfLastBiome, this.width, game);
 };
 
 // Extends Biome
@@ -15,45 +15,28 @@ SB2.BasicBiome.prototype.constructor = SB2.BasicBiome;
 
 //Reference ourself inside the Biomes list
 SB2.Biome.prototype.register(SB2.BasicBiome);
-SB2.BasicBiome.i = 0;
-SB2.BasicBiome.colors = ['plain', 'plain2', 'plain3'];
-
-/** @see SB2.Biome */
-SB2.BasicBiome.prototype.setPositions = function(cube1, cube2, camera, screenLimit) {
-    cube1.x = 100 + this.endOfLastBiome;
-    cube2.x = 200 + this.endOfLastBiome;
-    camera.setPosition(this.endOfLastBiome, 0);
-    screenLimit.x = this.endOfLastBiome + SB2.UNIT;
-}
 
 /** @see SB2.Biome */
 SB2.BasicBiome.prototype.setUpContent = function(game) {
-    var platform;
-    this.platforms = game.add.group(undefined, 'platforms', false, true, Phaser.Physics.ARCADE);
-    platform = this.platforms.create(0 + this.endOfLastBiome, SB2.HEIGHT - 2*SB2.UNIT, SB2.BasicBiome.colors[SB2.BasicBiome.i]);
-    SB2.BasicBiome.i = (SB2.BasicBiome.i + 1) % 3;
-    platform.scale.setTo(this.width, 2*SB2.UNIT);
-    platform.body.immovable = true;
-};
+    var posX, posY, width, remaining, botLimit;
 
-/** @see SB2.Biome */
-SB2.BasicBiome.prototype.update = function(cube1, cube2, game) {
-        game.physics.arcade.collide(cube1, this.platforms);
-        game.physics.arcade.collide(cube2, this.platforms);
-};
 
-/** @see SB2.Biome */
-SB2.BasicBiome.prototype.shift = function(offset) {
-    this.endOfLastBiome -= offset;
-    this.platforms.subAll('x', offset, true);
+    remaining = this.width - SB2.Biome.JUNCTION_SIZE + this.endOfLastBiome;
+    posX = SB2.Biome.JUNCTION_SIZE + this.endOfLastBiome;
+    botLimit = SB2.HEIGHT - SB2.Biome.MEDIUM;
+    posY = botLimit;
+
+    while(posX < remaining) {
+        posX += this.randomizer.randBetween(SB2.UNIT, SB2.UNIT*3)
+        posY += this.randomizer.randBetween(SB2.UNIT, SB2.UNIT*3) * (this.randomizer.randBetween(0, 10) > 7 ? 1 : -1);
+        posY = posY > botLimit ? botLimit : (posY < 0 ? 0 : posY); 
+        width = this.randomizer.randBetween(SB2.UNIT*2, SB2.UNIT*5);
+        this.addPlatform(posX, posY, width, SB2.Biome.MEDIUM);  
+        posX += width;
+    }
 };
 
 /** @see SB2.Biome */
 SB2.BasicBiome.prototype.getRarity = function() {
     return 9;
 };
-
-/** @see SB2.Biome */
-SB2.BasicBiome.prototype.killYourself = function(){
-    this.platforms.destroy();
-}

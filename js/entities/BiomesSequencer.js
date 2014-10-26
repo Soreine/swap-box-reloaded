@@ -16,7 +16,7 @@ SB2.BiomesSequencer = function(randomizer, cube1, cube2, screenLimit, game, stac
     this.stackSize = stackSize || SB2.BiomesSequencer.DEFAULT_STACK_SIZE;
 
     this.biomes = [];
-    this.endOfLastBiome = 0;
+    this.endOfLastBiome = SB2.WIDTH / 2;
 
     // Instanciate the first biome in the sequencer
     for(i = 0; i < this.stackSize; i++) {
@@ -68,7 +68,7 @@ SB2.BiomesSequencer.prototype = {
 
         // It supposed implicitly that if a biome isn't visible anymore, 
         // it is the lastbiome of the stack... 
-        if(!this.biomes.slice(-1)[0].hasBeenDisplayed(this.game.camera)){
+        if(!this.currentBiome().hasBeenDisplayed(this.game.camera)){
             this.shiftBiomes();
         }
 
@@ -105,11 +105,17 @@ SB2.BiomesSequencer.prototype = {
     * @param {Biome} biome The constructor of the biome to add
     */
     addBiome: function(biome){
-        biome = new biome(new SB2.Randomizer(this.randomizer.genSeed()), this.endOfLastBiome);
+        biome = new biome(new SB2.Randomizer(this.randomizer.genSeed()), this.endOfLastBiome, this.game);
         biome.setUpContent(this.game);
         this.endOfLastBiome += biome.getWidth();
         this.biomes.unshift(biome);
         return biome;
+    },
+
+    /** Get the current Biome of the biome Sequencer
+    */
+    currentBiome: function(){
+        return this.biomes.slice(-1)[0];
     }
 
 

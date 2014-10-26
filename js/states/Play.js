@@ -34,6 +34,8 @@ SB2.Play.swapTween; /** Tween used to make the indicators flash */
 //------------------------------------------------------------------------------
 SB2.Play.prototype.PAUSED = 0;
 SB2.Play.prototype.RUNNING = 1;
+SB2.Play.prototype.STARTING = 2;
+
 
 //------------------------------------------------------------------------------
 // State functions
@@ -55,7 +57,7 @@ SB2.Play.prototype.create = function () {
         instanciating a pseudo-random generator using a specific string
         that could be for example, the name of the level.
     */
-    this.seed = SB2.Randomizer.prototype.genSeedFromPhrase("Greta Svabo Bech");
+    this.seed = SB2.Randomizer.prototype.genSeedFromPhrase("Level 1");
     this.randomizer = new SB2.Randomizer(this.seed);
 
     // Initialize the screen limit
@@ -70,13 +72,9 @@ SB2.Play.prototype.create = function () {
     this.cube1 = new SB2.Cube(this.game, 0, 500, this.controls1, 0);
     this.cube2 = new SB2.Cube(this.game, 0, 500, this.controls2, 1);
 
-    // Init music
-    this.initMusic();
-    this.initSwap();
-
-    // Add events when paused
-    this.game.onPause.add(this.onPaused, this);
-    this.game.onResume.add(this.onResumed, this);
+    // Stop cubes initially
+    this.cube1.state = SB2.Cube.prototype.DEAD;
+    this.cube2.state = SB2.Cube.prototype.DEAD;
 
     // Start the biome Sequencer
     this.sequencer = new SB2.BiomesSequencer(
@@ -84,14 +82,13 @@ SB2.Play.prototype.create = function () {
         this.cube1, this.cube2, 
         this.screenLimit, this.game);
 
-    this.text = this.game.add.text(0, 0, "");
-
     // Finally, set up the correct state
-    this.state = this.RUNNING;
+    this.state = this.STARTING;
+    this.startChrono = this.game.time.now;
+    this.startTween = false;
 };
 
 SB2.Play.prototype.update = function () {
-    this.text.text = document.getElementById('seed').value;
     // According to game state
     switch(this.state) {
     case this.DYING:
@@ -100,6 +97,9 @@ SB2.Play.prototype.update = function () {
     case this.RUNNING:
         this.updateRunning();
         break;
+    case this.STARTING:
+        this.updateStarting();
+        break;
     }
 };
 
@@ -107,12 +107,48 @@ SB2.Play.prototype.update = function () {
 SB2.Play.prototype.updateDying = function () {
     if(this.cube1.state == SB2.Cube.prototype.DEAD ||
        this.cube2.state == SB2.Cube.prototype.DEAD) {
+        this.cube1.myRevive();
+        this.cube2.myRevive();
+        this.sequencer.currentBiome().setPositions(this.cube1, this.cube2, this.game.camera, this.screenLimit);
+        this.game.time.reset();
+        this.state = this.STARTING;
+        this.tweenStart = false;
+        this.startChrono = this.game.time.now;
+
         //this.game.state.start('Play');
     } else {
         this.cube1.myUpdate();
         this.cube2.myUpdate();
     }
 };
+
+SB2.Play.prototype.updateStarting = function () {
+    //Update all biomes
+    this.sequencer.updateBiomes();
+
+    if(!this.tweenStart){
+        this.startText = this.game.add.text(400, 200, "Ready ?", { font: "bold 70px Helvetica", fill: "#333333", align: "center" })
+        this.startText.anchor.set(0.5);
+        this.tweenStart = true;
+    }else if(this.game.time.elapsedSince(this.startChrono) > 1250 && this.tweenStart) {
+        this.startText.text = "Go !";
+        this.game.add.tween(this.startText).to({alpha: 0}, 1000, Phaser.Easing.Linear.None, true);
+
+        // Add events when paused
+        this.initMusic();
+        this.initSwap();
+        this.game.onPause.add(this.onPaused, this);
+        this.game.onResume.add(this.onResumed, this);
+        this.cube1.state = SB2.Cube.prototype.STANDING;
+        this.cube2.state = SB2.Cube.prototype.STANDING;
+        this.state = this.RUNNING;
+        this.cameraman.start();
+    }
+
+    // Update cubes states
+    this.cube1.myUpdate();
+    this.cube2.myUpdate();
+}
 
 SB2.Play.prototype.updateRunning = function () {
     var i, endOfLastBiome;
@@ -131,20 +167,16 @@ SB2.Play.prototype.updateRunning = function () {
     this.cube2.myUpdate();
     
     //  Checks to see if the both cubes overlap
-    // if(this.game.physics.arcade.overlap(this.cube1, this.screenLimit)){
-    //     console.log(JSON.stringify(this.trigger.position));
-    // }
-
-    // if(this.game.physics.arcade.overlap(this.cube1, this.cube2)
-    //    || !this.game.physics.arcade.overlap(this.cube1, this.screenLimit)
-    //    || !this.game.physics.arcade.overlap(this.cube2, this.screenLimit)) {
-    //       this.deathTouch();
-    //   }
+    if(this.game.physics.arcade.overlap(this.cube1, this.cube2)
+       || !this.game.physics.arcade.overlap(this.cube1, this.screenLimit)
+       || !this.game.physics.arcade.overlap(this.cube2, this.screenLimit)) {
+          this.deathTouch();
+      }
 };
 
 SB2.Play.prototype.render = function () {
-    this.game.debug.cameraInfo(this.game.camera, 25, 32);    
-    this.game.debug.bodyInfo(this.cube1, 500, 32);    
+    // this.game.debug.cameraInfo(this.game.camera, 25, 32);    
+    // this.game.debug.bodyInfo(this.cube1, 500, 32);    
 };
 
 //------------------------------------------------------------------------------
@@ -246,19 +278,6 @@ SB2.Play.prototype.initLevel = function () {
     ground.body.immovable = true;
 };
 
-/** Initialize the controls for player 1 and 2 */
-SB2.Play.prototype.initControls = function () {
-    var kb = this.game.input.keyboard;
-    this.controls1 = new SB2.Controls(kb.addKey(Phaser.Keyboard.UP),
-                           null,
-                           kb.addKey(Phaser.Keyboard.RIGHT),
-                           kb.addKey(Phaser.Keyboard.LEFT));
-    this.controls2 = new SB2.Controls(kb.addKey(Phaser.Keyboard.FIVE),
-                           null,
-                           kb.addKey(Phaser.Keyboard.Y),
-                           kb.addKey(Phaser.Keyboard.R));
-};
-
 /** Initialize the swap indicators and begin the swap timer. */
 SB2.Play.prototype.initSwap = function () {
     var indic,  // Temporary variable to create swap indicators
@@ -303,13 +322,13 @@ SB2.Play.prototype.initSwap = function () {
 SB2.Play.prototype.initControls = function () {
     var kb = this.game.input.keyboard;
     this.controls1 = new SB2.Controls(kb.addKey(Phaser.Keyboard.UP),
-                                      null,
-                                      kb.addKey(Phaser.Keyboard.RIGHT),
-                                      kb.addKey(Phaser.Keyboard.LEFT));
+                           null,
+                           kb.addKey(Phaser.Keyboard.RIGHT),
+                           kb.addKey(Phaser.Keyboard.LEFT)) ;
     this.controls2 = new SB2.Controls(kb.addKey(Phaser.Keyboard.FIVE),
-                                      null,
-                                      kb.addKey(Phaser.Keyboard.Y),
-                                      kb.addKey(Phaser.Keyboard.R));
+                           null,
+                           kb.addKey(Phaser.Keyboard.Y),
+                           kb.addKey(Phaser.Keyboard.R));
 };
 
 /** Initialize the screen limit used to check when cube exit the screen */

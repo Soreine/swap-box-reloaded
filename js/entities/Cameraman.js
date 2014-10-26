@@ -9,11 +9,11 @@
  *   unit per second
  */
 SB2.Cameraman = function (camera, time, speed) {
-    this.camera = camera; this.time = time;
+    this.camera = camera; 
+    this.time = time;
 
     // The speed is optionnal and got a specific default value if not precised
     this.speed = speed || this.DEFAULT_SPEED;
-    this.previousTime = time.now;
 };
 
 SB2.Cameraman.prototype = {
@@ -28,12 +28,13 @@ SB2.Cameraman.prototype = {
         delay = this.time.elapsedSince(this.previousTime);
         positionByTime = 0;
         positionByTime =  this.camera.x + Math.ceil(delay *  this.speed / 1000);
-        positionByCubes = Math.ceil((cube1.body.x + cube2.body.x) / 2) - this.camera.width / 2;
+        //positionByCubes = Math.ceil((cube1.body.x + cube2.body.x) / 2) - this.camera.width / 2;
+
 
         // Move the camera
         previousCamPos = this.camera.x;
-        this.camera.x = positionByCubes > positionByTime ? 
-            Math.floor((positionByTime + positionByCubes) / 2): 
+        this.camera.x = //positionByCubes > positionByTime ? 
+            //Math.floor((positionByTime + positionByCubes) / 2): 
             positionByTime;
         this.previousTime = this.time.now;
 
@@ -46,5 +47,10 @@ SB2.Cameraman.prototype = {
         cities[0].tilePosition.x = (cities[0].tilePosition.x - cityOffset(0.15, this.camera.x, previousCamPos)) % cities[0].width;
         cities[1].tilePosition.x = (cities[1].tilePosition.x - cityOffset(0.30, this.camera.x, previousCamPos)) % cities[1].width;
     },
+
+    /** Start the cameraman */
+    start: function(){
+        this.previousTime = this.time.now;
+    }
 };
 

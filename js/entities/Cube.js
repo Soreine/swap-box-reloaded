@@ -87,15 +87,14 @@ SB2.Cube.prototype.myUpdate = function () {
             this.state = this.AIRBORNE;
             this.rotation += this.ROTATION_SPEED;
         }
-
-        // Update spirit
-        this.spirit.x = this.body.x + this.body.width/2;
-        this.spirit.y = this.body.y + this.body.height/2;
         
         // Handle inputs
         this.handleInputs();
         break;
     }
+    // Update spirit
+    this.spirit.x = this.body.x + this.body.width/2;
+    this.spirit.y = this.body.y + this.body.height/2;
 },
 
 /** Reads inputs and act consequently */
@@ -111,11 +110,12 @@ SB2.Cube.prototype.handleInputs = function () {
         // Reset speed
         this.body.velocity.x = 0;
     }
-    
+
     //  Allow the player to jump if they are touching the ground.
     if (this.state != this.AIRBORNE && this.controls.up.isDown) {
         this.body.velocity.y = SB2.JUMP_SPEED;
     }
+
 };
 
 /** Stop the cube and start its death animation
@@ -137,6 +137,7 @@ SB2.Cube.prototype.die = function (game) {
     death.animations.add('die');
 
     this.death = death;
+
     // Pause the cube
     this.body.velocity = {x:0, y:0};
     this.velocity = {x:0, y:0};
@@ -154,6 +155,13 @@ SB2.Cube.swap = function (cube1, cube2) {
     temp = cube1.spirit.frame;
     cube1.spirit.frame = cube2.spirit.frame;
     cube2.spirit.frame = temp;
+};
+
+SB2.Cube.prototype.myRevive = function(){
+    this.revive();
+    this.spirit.revive();
+    this.state = this.STANDING;
+    this.body.allowGravity = true;
 };
 
 
