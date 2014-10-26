@@ -329,10 +329,12 @@ SB2.Play.prototype.initMusic = function () {
             // Update button icon
             this.muteButton.frame = 0;
             this.game.sound.mute = false;
+            SB2.muted = false;
         } else {
             // Mute
             this.muteButton.frame = 1;        
             this.game.sound.mute = true;
+            SB2.muted = true;
         }
     }
 
