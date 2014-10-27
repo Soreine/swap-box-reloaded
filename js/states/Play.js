@@ -57,7 +57,7 @@ SB2.Play.prototype.create = function () {
         instanciating a pseudo-random generator using a specific string
         that could be for example, the name of the level.
     */
-    this.seed = SB2.Randomizer.prototype.genSeedFromPhrase("Level 1");
+    this.seed = SB2.Randomizer.prototype.genSeedFromPhrase("Yeah Bitch I'm Fucking Flawless");
     this.randomizer = new SB2.Randomizer(this.seed);
 
     // Initialize the screen limit
@@ -86,6 +86,9 @@ SB2.Play.prototype.create = function () {
     this.state = this.STARTING;
     this.startChrono = this.game.time.now;
     this.startTween = false;
+
+   //Temporaire parce pas l'time
+   this.revived = false
 };
 
 SB2.Play.prototype.update = function () {
@@ -107,15 +110,19 @@ SB2.Play.prototype.update = function () {
 SB2.Play.prototype.updateDying = function () {
     if(this.cube1.state == SB2.Cube.prototype.DEAD ||
        this.cube2.state == SB2.Cube.prototype.DEAD) {
-       //  this.cube1.myRevive();
-       //  this.cube2.myRevive();
-       //  this.sequencer.currentBiome().setPositions(this.cube1, this.cube2, this.game.camera, this.screenLimit);
-       //  this.game.time.reset();
-       //  this.state = this.STARTING;
-       //  this.tweenStart = false;
-       //  this.startChrono = this.game.time.now;
 
-        this.game.state.start('Play');
+       this.cube1.myRevive();
+       this.cube2.myRevive();
+       this.sequencer.currentBiome().setPositions(this.cube1, this.cube2, this.game.camera, this.screenLimit);
+       this.game.time.reset();
+       this.state = this.STARTING;
+       this.tweenStart = false;
+       this.startChrono = this.game.time.now;
+
+       //Temporaire parce pas l'time
+       this.revived = true
+
+        //this.game.state.start('Play');
     } else {
         this.cube1.myUpdate();
         this.cube2.myUpdate();
@@ -134,14 +141,18 @@ SB2.Play.prototype.updateStarting = function () {
         this.startText.text = "Go !";
         this.game.add.tween(this.startText).to({alpha: 0}, 1000, Phaser.Easing.Linear.None, true);
 
-        // Add events when paused
-        this.initMusic();
-        this.initSwap();
         this.game.onPause.add(this.onPaused, this);
         this.game.onResume.add(this.onResumed, this);
         this.cube1.state = SB2.Cube.prototype.STANDING;
         this.cube2.state = SB2.Cube.prototype.STANDING;
         this.state = this.RUNNING;
+
+        // Add events when paused
+        if(!this.revived){
+            this.initMusic();
+            this.initSwap();
+        }
+
         this.cameraman.start();
     }
 

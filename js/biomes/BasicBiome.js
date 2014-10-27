@@ -5,7 +5,7 @@
 /** @see Biome */
 SB2.BasicBiome = function (randomizer, endOfLastBiome, game) {
     // Call the parent constructor
-    this.width = 1000;
+    this.width = 1750;
     SB2.Biome.call(this, randomizer, endOfLastBiome, this.width, game);
 };
 
