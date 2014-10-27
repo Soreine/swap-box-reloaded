@@ -73,6 +73,7 @@ window.onload = function () {
 
     // Initialize all the states
     SB2.STATES.loader = new SB2.Loader(game);
+    SB2.STATES.menu = new SB2.Menu(game);
     SB2.STATES.play = new SB2.Play(game);
     
     // Start the first state

@@ -47,7 +47,7 @@ SB2.Loader.prototype.update = function () {
     // If assets are loaded AND music are loaded and decoded
     if(this.ready && this.checkDecoded()) {
         this.ready = true;
-        this.game.state.start("Play");
+        this.game.state.start("Menu");
     }
 };
 
