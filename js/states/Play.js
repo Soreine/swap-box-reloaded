@@ -107,15 +107,15 @@ SB2.Play.prototype.update = function () {
 SB2.Play.prototype.updateDying = function () {
     if(this.cube1.state == SB2.Cube.prototype.DEAD ||
        this.cube2.state == SB2.Cube.prototype.DEAD) {
-        this.cube1.myRevive();
-        this.cube2.myRevive();
-        this.sequencer.currentBiome().setPositions(this.cube1, this.cube2, this.game.camera, this.screenLimit);
-        this.game.time.reset();
-        this.state = this.STARTING;
-        this.tweenStart = false;
-        this.startChrono = this.game.time.now;
+       //  this.cube1.myRevive();
+       //  this.cube2.myRevive();
+       //  this.sequencer.currentBiome().setPositions(this.cube1, this.cube2, this.game.camera, this.screenLimit);
+       //  this.game.time.reset();
+       //  this.state = this.STARTING;
+       //  this.tweenStart = false;
+       //  this.startChrono = this.game.time.now;
 
-        //this.game.state.start('Play');
+        this.game.state.start('Play');
     } else {
         this.cube1.myUpdate();
         this.cube2.myUpdate();
