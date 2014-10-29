@@ -7,7 +7,12 @@ SB2.Menu = function (game) {
     // Call State constructor on this instance and add this state to
     // game engine, without starting it
     Phaser.State.call(this, game);
-    game.state.add("Menu", this, false);
+    game.state.add('Menu', this, false);
+    // Init menu object
+    this.play = document.getElementById('SB2-play');
+    this.seed = document.getElementById('SB2-seed');
+    this.title = document.getElementById('SB2-title');
+    this.overlay = document.getElementsByClassName('overlay');
 };
 
 // Extends Phaser.State
@@ -18,12 +23,6 @@ SB2.Menu.prototype.constructor = SB2.Menu;
 // Members
 //------------------------------------------------------------------------------
 
-// Init menu object
-SB2.Menu.elements = {
-    play: document.getElementById("SB2-play"),
-    seed: document.getElementById("SB2-seed"),
-    title: document.getElementById("SB2-title")
-};
 
 //------------------------------------------------------------------------------
 // State functions
@@ -32,15 +31,14 @@ SB2.Menu.prototype.preload = function () {
 };
 
 SB2.Menu.prototype.create = function () {
-    var elements, city, state;
-    state = this;
-    elements = SB2.Menu.elements;
-    // Set the background of the game
-    this.game.stage.backgroundColor = SB2.BACKGROUND_COLOR;
-    city = this.game.add.tileSprite(0, 0, 800, 600, 'city1');
-    city.autoScroll(15, 0);
-    city = this.game.add.tileSprite(0, 0, 800, 600, 'city2');
-    city.autoScroll(30, 0);
+    { // Set the background of the game
+        var city;    
+        this.game.stage.backgroundColor = SB2.BACKGROUND_COLOR;
+        city = this.game.add.tileSprite(0, 0, 800, 600, 'city1');
+        city.autoScroll(15, 0);
+        city = this.game.add.tileSprite(0, 0, 800, 600, 'city2');
+        city.autoScroll(30, 0);
+    }
 
     // Add mute button
     this.initMusic();
@@ -49,24 +47,28 @@ SB2.Menu.prototype.create = function () {
     // elements
     this.game.pause = true;
 
-    SB2.Menu.setVisibility("visible");
+    // Set the menu overlay visible
+    this.setVisibility('visible');
 
-    elements.seed.value = SB2.seed || "";
-    elements.play.onclick = function () {
-        // Get the seed
-        if(elements.seed.value != "") {            
-            SB2.seed = elements.seed.value;
-        }
-        // hide menu
-        SB2.Menu.setVisibility("hidden");
-        // Start the game
-        state.game.state.start("Play");
-    };
+    // Display the seed value if already set
+    this.seed.value = SB2.seed || '';
+
+    this.play.onclick = SB2.Menu.onPlay.bind(this);
 };
 
 SB2.Menu.prototype.update = function () {
 };
 
+SB2.Menu.onPlay = function () {
+    // Get the seed
+    if(this.seed.value != '') {            
+        SB2.seed = this.seed.value;
+    }
+    // hide menu
+    this.setVisibility('hidden');
+    // Start the game
+    this.game.state.start('Play');
+};
 
 SB2.Menu.prototype.initMusic = function () {
     function muteFunction () {
@@ -94,10 +96,9 @@ SB2.Menu.prototype.initMusic = function () {
     this.muteButton.fixedToCamera = true;
 };
 
-SB2.Menu.setVisibility = function (visibility, menu) {
-    menu = menu || SB2.Menu.elements;
+SB2.Menu.prototype.setVisibility = function (visibility) {
     // Change the visibility of the element of the menu
-    for(var element in menu) {
-        menu[element].style.visibility = visibility;
+    for(var i = 0, length = this.overlay.length; i < length; i++) {
+        this.overlay[i].style.visibility = visibility;
     }
 };

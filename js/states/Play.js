@@ -57,7 +57,10 @@ SB2.Play.prototype.create = function () {
         instanciating a pseudo-random generator using a specific string
         that could be for example, the name of the level.
     */
-    this.seed = SB2.Randomizer.prototype.genSeedFromPhrase("Yeah Bitch I'm Fucking Flawless");
+    // Get the seed phrase
+    var phrase = SB2.seed || 
+            "God's Final Message to His Creation: We apologize for the inconvenience.";
+    this.seed = SB2.Randomizer.prototype.genSeedFromPhrase(phrase);
     this.randomizer = new SB2.Randomizer(this.seed);
 
     // Initialize the screen limit

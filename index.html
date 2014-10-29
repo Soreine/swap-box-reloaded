@@ -13,9 +13,18 @@
        border-style:none;
      }
 
-     #SB2 button {
+     #SB2 canvas {
+       position:absolute;
+       z-index:1;
+     }
+
+     .overlay {
        z-index:2;
        position:absolute;
+       visibility:hidden;
+     }
+
+     button.overlay {
        top:45%;
        left:35%;
        height:10%;
@@ -31,14 +40,12 @@
        color:#eee;
        transition:background-color ease-out 0.2s;
      }
-     #SB2 button:hover {
+     button.overlay:hover {
        background-color:#1969E1;
        transition:background-color ease-out 0.2s;
      }
 
-     #SB2 input {
-       z-index:2;
-       position:absolute;
+     input.overlay {
        top:65%;
        left:35%;
        height:10%;
@@ -54,10 +61,8 @@
        color:#1989f1;
      }
 
-     #SB2 #SB2-title {
+     #SB2-title.overlay {
        pointer-events: none;
-       z-index:2;
-       position:absolute;
        top:20%;
        width:100%;
        text-align:center;
@@ -68,9 +73,7 @@
      }
 
      .key {
-       z-index:2;
        pointer-events:none;
-       position:absolute;
        text-align:center;
        vertical-align:middle;
        font-size:30px;
@@ -93,33 +96,27 @@
        color:#fbab1f;
        border-color:#fbab1f;
      }
-
-
-     #SB2 canvas {
-       position:absolute;
-       z-index:1;
-     }
     </style>
   </head>
   <body>
     <div id="SB2">
-      <div id="SB2-title">
+      <div class="overlay" id="SB2-title">
         SWAP BOX TURBO 2
       </div>
-      <button id="SB2-play">PLAY</button>
-      <input id="SB2-seed"
+      <button class="overlay" id="SB2-play">PLAY</button>
+      <input class="overlay" id="SB2-seed"
              type="text" 
              autocomplete="false"
              maxlength="16"
              name="firstname"
              autofocus="autofocus"
              placeholder="Level name&hellip;">
-      <div class="key p2" style="top:85%;left:5%">R</div>
-      <div class="key p2" style="top:75%;left:12%">5</div>
-      <div class="key p2" style="top:85%;left:19%">Y</div>
-      <div class="key p1" style="top:85%;left:75%">&#8592;</div>
-      <div class="key p1" style="top:75%;left:82%">&#8593;</div>
-      <div class="key p1" style="top:85%;left:89%">&#8594;</div>
+      <div class="overlay key p2" style="top:85%;left:5%">R</div>
+      <div class="overlay key p2" style="top:75%;left:12%">5</div>
+      <div class="overlay key p2" style="top:85%;left:19%">Y</div>
+      <div class="overlay key p1" style="top:85%;left:75%">&#8592;</div>
+      <div class="overlay key p1" style="top:75%;left:82%">&#8593;</div>
+      <div class="overlay key p1" style="top:85%;left:89%">&#8594;</div>
     </div>
     
     <script  src="/js/libs/phaser.min.js"></script>
