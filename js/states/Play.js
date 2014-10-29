@@ -90,8 +90,12 @@ SB2.Play.prototype.create = function () {
     this.startChrono = this.game.time.now;
     this.startTween = false;
 
-   //Temporaire parce pas l'time
-   this.revived = false
+    // Init music and timer
+    this.initMusic();
+    this.initSwap();
+
+    //Temporaire parce pas l'time
+    this.revived = false;
 };
 
 SB2.Play.prototype.update = function () {
@@ -123,7 +127,7 @@ SB2.Play.prototype.updateDying = function () {
        this.startChrono = this.game.time.now;
 
        //Temporaire parce pas l'time
-       this.revived = true
+       this.revived = true;
 
         //this.game.state.start('Play');
     } else {
@@ -137,7 +141,10 @@ SB2.Play.prototype.updateStarting = function () {
     this.sequencer.updateBiomes();
 
     if(!this.tweenStart){
-        this.startText = this.game.add.text(400, 200, "Ready ?", { font: "bold 70px Helvetica", fill: "#333333", align: "center" })
+        this.startText = this.game.add.text(400, 200, "Ready ?",
+                                            {font: "bold 70px Helvetica",
+                                             fill: "#333333",
+                                             align: "center" });
         this.startText.anchor.set(0.5);
         this.tweenStart = true;
     }else if(this.game.time.elapsedSince(this.startChrono) > 1250 && this.tweenStart) {
@@ -151,10 +158,7 @@ SB2.Play.prototype.updateStarting = function () {
         this.state = this.RUNNING;
 
         // Add events when paused
-        if(!this.revived){
-            this.initMusic();
-            this.initSwap();
-        }
+        this.startSwap();
 
         this.cameraman.start();
     }
@@ -162,7 +166,7 @@ SB2.Play.prototype.updateStarting = function () {
     // Update cubes states
     this.cube1.myUpdate();
     this.cube2.myUpdate();
-}
+};
 
 SB2.Play.prototype.updateRunning = function () {
     var i, endOfLastBiome;
@@ -196,8 +200,8 @@ SB2.Play.prototype.render = function () {
 //------------------------------------------------------------------------------
 // Other functions
 //------------------------------------------------------------------------------
-/** Measure time and swap controls if needed. Also in charge to
- * display timing indicators */
+/** Measure time and swap controls if needed. Also in charge of
+ * displaying timing indicators */
 SB2.Play.prototype.handleSwap = function () {
     // Check the timer 
     if(this.swap.timer.elapsed() > SB2.INDIC_PERIOD*this.swap.count) {
@@ -227,6 +231,10 @@ SB2.Play.prototype.deathTouch = function () {
     this.cube2.die();
     // Update game state
     this.state = this.DYING;
+    this.music.stop();
+    this.swap.timer.pause();
+    this.swap.timer.reset();
+    this.swap.count = 0;
 };
 
 
@@ -327,10 +335,16 @@ SB2.Play.prototype.initSwap = function () {
     // Init swap timer
     this.swap = {timer: new SB2.Timer(this.game),
                  count:0};
+};
+
+/** Effectively start the timer (and music) */
+SB2.Play.prototype.startSwap = function () {
+    // Start timer and music
     this.swap.timer.start();
     this.music.play("", 0, 1, true);
     this.music.loop = true;
 };
+
 
 /** Initialize the controls for player 1 and 2 */
 SB2.Play.prototype.initControls = function () {
