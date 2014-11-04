@@ -29,6 +29,16 @@ SB2.Play.swap; /** Timer for controls swap */
 SB2.Play.swapIndicators; /** The group of HUD indicators for swap */
 SB2.Play.swapTween; /** Tween used to make the indicators flash */
 
+/** This object will handle the different workers that strive around the game */
+SB2.Play.workers = {
+    cameraman: undefined,
+    conductor: undefined,
+    decorator: undefined,
+    manager: undefined,
+    supervisor: undefined
+};
+
+
 //------------------------------------------------------------------------------
 // Game state
 //------------------------------------------------------------------------------
@@ -43,37 +53,15 @@ SB2.Play.prototype.STARTING = 2;
 SB2.Play.prototype.preload = function () {};
 
 SB2.Play.prototype.create = function () {    
-    /* We will define below, everything that should be started and instanciated
-    * in order to make the addition of biome's contexts possible */
+    /* Firstly, hire the supervisor that will first prepare the game world */
+    this.workers.supervisor = new SB2.Supervisor(this.game);
 
-    //  We're going to be using physics, so enable the Arcade Physics system
-    this.game.physics.startSystem(Phaser.Physics.ARCADE);
+    /* Now instanciate the decorator and the cameraman */
+    this.workers.decorator = new SB2.Decorator(this.game);
+    this.workers.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
 
-    /* Adjust the size of the world. This will implicitly impacts the maximum 
-    size of each biome */
-    this.game.world.setBounds(0, 0, SB2.WIDTH*10, SB2.HEIGHT);
-
-    /* Preparing the biome generation by creating a level's seed and
-        instanciating a pseudo-random generator using a specific string
-        that could be for example, the name of the level.
-    */
-    // Get the seed phrase
-    var phrase = SB2.seed || 
-            "God's Final Message to His Creation: We apologize for the inconvenience.";
-    this.seed = SB2.Randomizer.prototype.genSeedFromPhrase(phrase);
-    this.randomizer = new SB2.Randomizer(this.seed);
-
-    // Initialize the screen limit
-    this.initBackground();
-    this.initScreenLimit();
-
-    // Initialize the cameraman, the background and the swap indicators
-    this.cameraman = new SB2.Cameraman(this.game.camera, this.game.time);
-
-    // Preparing controls and cubes; btw, cube's position will be set by the biome
-    this.initControls();
-    this.cube1 = new SB2.Cube(this.game, 0, 500, this.controls1, 0);
-    this.cube2 = new SB2.Cube(this.game, 0, 500, this.controls2, 1);
+    /* Prepare the manager to handle cubes and controls. */
+    this.workers.manager = new SB2.Manager(this.game);
 
     // Stop cubes initially
     this.cube1.state = SB2.Cube.prototype.DEAD;
@@ -252,23 +240,6 @@ SB2.Play.prototype.onResumed = function () {
 // Initialization functions
 //------------------------------------------------------------------------------
 
-/** Initialize the backgrounds of the game area */
-SB2.Play.prototype.initBackground = function() {
-    var city, cityNames, i; // Used for temporary setting
-
-    // Set the background color
-    this.game.stage.backgroundColor = SB2.BACKGROUND_COLOR;
-
-    // Add two cities in the background giving a parallax effect
-    this.cities = [];
-    cityNames = ['city1', 'city2'];
-    for ( i = 0; i < cityNames.length; i++) {
-        city = this.game.add.tileSprite(0, 0, 800, 600, cityNames[i]);
-        city.fixedToCamera = true;
-        this.cities.push(city);
-    }
-};
-
 /** This function initialize the level. (Generate the first platforms) */
 SB2.Play.prototype.initLevel = function () {
     // For platform creation
@@ -343,31 +314,6 @@ SB2.Play.prototype.startSwap = function () {
     this.swap.timer.start();
     this.music.play("", 0, 1, true);
     this.music.loop = true;
-};
-
-
-/** Initialize the controls for player 1 and 2 */
-SB2.Play.prototype.initControls = function () {
-    var kb = this.game.input.keyboard;
-    this.controls1 = new SB2.Controls(kb.addKey(Phaser.Keyboard.UP),
-                           null,
-                           kb.addKey(Phaser.Keyboard.RIGHT),
-                           kb.addKey(Phaser.Keyboard.LEFT)) ;
-    this.controls2 = new SB2.Controls(kb.addKey(Phaser.Keyboard.FIVE),
-                           null,
-                           kb.addKey(Phaser.Keyboard.Y),
-                           kb.addKey(Phaser.Keyboard.R));
-};
-
-/** Initialize the screen limit used to check when cube exit the screen */
-SB2.Play.prototype.initScreenLimit = function () {
-    // An invisible rectangle that cover almost the entire screen,
-    // used for collision
-    var trigger = this.game.add.sprite(SB2.UNIT, SB2.UNIT, null, 0, this.screenLimit);
-    this.game.physics.arcade.enable(trigger);
-    trigger.body.setSize(SB2.WIDTH - 2*SB2.UNIT, SB2.HEIGHT - 2*SB2.UNIT);
-    trigger.fixedToCamera = true;
-    this.screenLimit = trigger;
 };
 
 SB2.Play.prototype.initMusic = function () {

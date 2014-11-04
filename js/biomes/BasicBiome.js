@@ -38,5 +38,5 @@ SB2.BasicBiome.prototype.setUpContent = function(game) {
 
 /** @see SB2.Biome */
 SB2.BasicBiome.prototype.getRarity = function() {
-    return 9;
+    return 6;
 };
