@@ -3,36 +3,35 @@
 "use strict";
 
 /** Instanciate a cameraman which will manage the camera motion during the game 
- *   @param {Phaser.Camera} camera The game camera he has to manage
- *   @param {Phaser.Time} time Time of the game
- *   @param {Number} <optionnal> speed Lateral speed of the camera, in
- *   unit per second
- */
-SB2.Cameraman = function (camera, time, speed) {
-    this.camera = camera;  this.time = time;
-
+* @param {Object} workers The powerful team that does a great job
+* @param {Phaser.Game} game The instance of the Game
+* @param {Number} <optionnal> speed Lateral speed of the camera, in unit per second
+*/
+SB2.Cameraman = function (workers, game, speed) {
+    SB2.Cameraman.call(this, workers, game);
     // The speed is optionnal and got a specific default value if not precised
     this.speed = speed || this.DEFAULT_SPEED;
-};
+}:
 
-SB2.Cameraman.prototype = {
-    /** Value of the default lateral speed of the camera in unit per second */
-    DEFAULT_SPEED:  100,
+/* Inheritance from Worker */
+SB2.Cameraman.prototype = Object.create(SB2.Worker.prototype);
+SB2.Cameraman.prototype.constructor = SB2.Cameraman;
 
-    /** Update the camera position since the last update */
-    update: function (cube1, cube2, cities) {
-        var delay, positionByTime, previousCamPos;
+/** Value of the default lateral speed of the camera in unit per second */
+SB2.Cameraman.prototype.DEFAULT_SPEED = 100,
 
-        /* Compute the new camera position depending of the time scrolling */
-        delay = this.time.elapsedSince(this.previousTime);
-        previousCamPos = this.camera.x;
-        this.camera.x += Math.ceil(delay *  this.speed / 1000);
-        this.previousTime = this.time.now;
-    },
+/** Update the camera position since the last update */
+SB2.Cameraman.prototype.update = function(cube1, cube2, cities){
+    var delay;
 
-    /** start the cameraman */
-    start: function(){
-        this.previousTime = this.time.now;
-    }
+    /* Compute the new camera position depending of the time scrolling */
+    delay = this.time.elapsedSince(this.previousTime);
+    this.game.camera.x += Math.ceil(delay * this.speed / 1000);
+    this.previousTime = this.game.time.now;
+}:
+
+/** start the cameraman */
+SB2.Cameraman.prototype.start = function(){
+    this.previousTime = this.game.time.now;
 };
 

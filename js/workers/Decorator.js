@@ -3,45 +3,52 @@
 "use strict";
 
 /** The decorator is in charge of the background animations.
-* @param {Phaser.Game} game The instance of the current game
- */
-SB2.Decorator = function (game) {
-    /* Initialize the backgrounds of the game area */
+* @param {Object} workers The powerful team that does a great job
+* @param {Phaser.Game} game The instance of the Game
+*/
+SB2.Decorator = function (workers, game) {
+    SB2.Decorator.call(this, workers, game);
+    this.initializes("Cities");
+}
+/* Inheritance from Worker */
+SB2.Decorator.prototype = Object.create(SB2.Worker.prototype);
+SB2.Decorator.prototype.constructor = SB2.Decorator;
+
+// Define the parralax factors for the background scrolling
+SB2.Decorator.prototype.FACTORS = [0.15, 0.30];
+
+/** Initialize the backgrounds of the game area */
+SB2.Decorator.prototype.initCities = function(){
     var city, cityNames, i;
 
-    // Set the background color
-    game.stage.backgroundColor = SB2.BACKGROUND_COLOR;
+    /* Set the background color */
+    this.game.stage.backgroundColor = SB2.BACKGROUND_COLOR;
 
-    // Add two cities in the background giving a parallax effect
+    /* Add two cities in the background giving a parallax effect */
     this.cities = [];
     cityNames = ['city1', 'city2'];
     for ( i = 0; i < cityNames.length; i++) {
-        city = game.add.tileSprite(0, 0, 800, 600, cityNames[i]);
+        city = this.game.add.tileSprite(0, 0, 800, 600, cityNames[i]);
         city.fixedToCamera = true;
         this.cities.push(city);
     }
 
-    // Keep the instance of the game's camera, and set up it previous pos.
-    this.gameCamera = game.camera
-    this.previousCamPos = game.camera.x;
-}
+    /* Keep the instance of the game's camera, and set up it previous pos. */
+    this.gameCamera = this.game.camera
+    this.previousCamPos = this.game.camera.x;
+};
 
-// Define the parralax factors for the background scrolling
-SB2.Decorator.FACTORS = [0.15, 0.30];
+/** Compute the offset to add */
+SB2.Decorator.prototype.cityOffset = function(factor){
+        return factor*Math.max(0, this.gameCamera.x - this.previousCamPos);
+};
 
-SB2.Decorator.prototype = {
-    /** Compute the offset to add */
-    cityOffset: function(factor) {
-            return factor*Math.max(0, this.gameCamera.x - this.previousCamPos);
-    },
-
-    update: function(){
-        for(var i = 0; i < factors.length(); i++){
-            this.cities[i].tilePosition.x = (cities[i].tilePosition.x - cityOffset(SB2.Decorator.FACTORS[i])) % cities[i].width;
-        }
-        this.previousCamPos = this.gameCamera.x;
-    },
-}
+SB2.Decorator.prototype.update = function(){
+    for(var i = 0; i < factors.length(); i++){
+        this.cities[i].tilePosition.x = (cities[i].tilePosition.x - cityOffset(SB2.Decorator.FACTORS[i])) % cities[i].width;
+    }
+    this.previousCamPos = this.gameCamera.x;
+};
 
 
 
