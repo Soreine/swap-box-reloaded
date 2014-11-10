@@ -15,20 +15,23 @@ SB2.Supervisor = function (workers, game) {
 SB2.Supervisor.prototype = Object.create(SB2.Worker.prototype);
 SB2.Supervisor.prototype.constructor = SB2.Supervisor;
 
+
+
+
 /** We're going to be using physics, so enable the Arcade Physics system
     And adjust the size of the world. This will implicitly impacts the maximum 
     size of each biome */
 SB2.Supervisor.prototype.initGameWorld = function(){
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.world.setBounds(0, 0, SB2.WIDTH*10, SB2.HEIGHT);   
+    this.game.physics.startSystem(Phaser.Physics.ARCADE);
+    this.game.world.setBounds(0, 0, SB2.WIDTH*10, SB2.HEIGHT);   
 };
 
 /** Preparing the biome generation by creating a level's seed and
     instanciating a pseudo-random generator using a specific string
     that could be for example, the name of the level. */
 SB2.Supervisor.prototype.initRandomizer = function(){
-    phrase = SB2.seed || "God's Final Message to His Creation: We apologize for the inconvenience.";
-    this.seed = SB2.Randomizer.prototype.genSeedFromPhrase(phrase);
+    this.phrase = SB2.seed || "God's Final Message to His Creation: We apologize for the inconvenience.";
+    this.seed = SB2.Randomizer.prototype.genSeedFromPhrase(this.phrase);
     this.randomizer = new SB2.Randomizer(this.seed);
 };
 
@@ -50,3 +53,22 @@ SB2.Supervisor.prototype.initSequencer = function(){
         this.screenLimit, this.game
     );
 };
+
+/** Update all biomes */
+SB2.Supervisor.prototype.updateBiomes = function(){
+    this.sequencer.updateBiomes();
+};
+
+
+SB2.Supervisor.prototype.updateStartingChrono = function(){
+    if(!this.chrono){
+        this.chrono = new SB2.Timer(this.game);
+        this.chrono.start();
+        return SB2.Play.prototype.STARTING;
+    }else if(this.chrono.elapsed > SB2.Supervisor.prototype.STARTING_DELAY) {
+        this.workers.manager.setCubesState([0,1], SB2.Cube.prototype.STANDING);
+        this.workers.cameraman.reset();
+        this.workers.conductor.startSwap();
+        return SB2.Play.prototype.RUNNING;
+    }
+}

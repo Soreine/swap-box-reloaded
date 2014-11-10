@@ -11,13 +11,11 @@ SB2.Worker = function (workers, game) {
     this.game = game;
 };
 
-SB2.Worker.prototype = {
-    /** Call initializations functions 
-    * @param {String} <Optionnal> args Functions that have to be called
-    */
-    initializes: function(){
-        for(var i = 0; i < arguments.length(); i++) {
-            this["init" + arguments[i]](); 
-        }
+/** Call initializations functions 
+* @param {String} <Optionnal> args Functions that have to be called
+*/
+SB2.Worker.prototype.initializes = function(){
+    for(var i = 0; i < arguments.length; i++) {
+        this["init" + arguments[i]](); 
     }
-}
+};

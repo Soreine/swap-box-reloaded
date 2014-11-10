@@ -68,6 +68,10 @@ SB2.Conductor.prototype.initMusic = function(){
     this.muteButton.frame = SB2.muted ? 1 : 0;
     this.muteButton.alpha = 0.5;
     this.muteButton.fixedToCamera = true;
+
+    // Add the pause and resume handling
+    this.game.onPause.add(this.onPaused, this);
+    this.game.onResume.add(this.onResumed, this);
 };
 
 /** Effectively start the timer (and music) */
@@ -102,3 +106,20 @@ SB2.Conductor.prototype.handleSwap = function(){
         this.swap.count++;
     }
 };
+
+SB2.Conductor.prototype.onPaused = function () {
+    this.swap.timer.pause();
+    this.music.pause();
+};
+
+SB2.Conductor.prototype.onResumed = function () {
+    this.swap.timer.resume();
+    this.music.resume();
+};
+
+SB2.Conductor.prototype.die = function(){
+    this.music.stop();
+    this.swap.timer.pause();
+    this.swap.timer.reset();
+    this.swap.count = 0; 
+}
