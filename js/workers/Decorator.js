@@ -8,7 +8,6 @@
 */
 SB2.Decorator = function (workers, game) {
     SB2.Worker.call(this, workers, game);
-    this.initializes("Cities");
 }
 /* Inheritance from Worker */
 SB2.Decorator.prototype = Object.create(SB2.Worker.prototype);
@@ -16,8 +15,8 @@ SB2.Decorator.prototype.constructor = SB2.Decorator;
 
 // Define the parralax factors for the background scrolling
 SB2.Decorator.prototype.FACTORS = [0.15, 0.30];
-SB2.Decorator.prototype.TEXT_0 = {content: "Ready ?", x: 200, y: 400};
-SB2.Decorator.prototype.TEXT_1 = {content: "Go !", x: 200, y: 400};
+SB2.Decorator.prototype.TEXT_0 = {content: "Ready ?", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2 - 70};
+SB2.Decorator.prototype.TEXT_1 = {content: "Go !", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2 - 70};
 SB2.Decorator.prototype.TEXT_OPTIONS = {font: "bold 70px Helvetica", fill: "#333333", align: "center" };
 
 
@@ -55,8 +54,8 @@ SB2.Decorator.prototype.update = function(){
     this.previousCamPos = this.gameCamera.x;
 };
 
-SB2.Decorator.prototype.handleStartingText = function(state){
-    switch(state){
+SB2.Decorator.prototype.handleStartingText = function(){
+    switch(this.workers.gameState){
         case SB2.Play.prototype.STARTING:
             if(!this.startText){
                 this.startText = this.game.add.text(this.TEXT_0.x, this.TEXT_0.y, this.TEXT_0.content, this.TEXT_OPTIONS);

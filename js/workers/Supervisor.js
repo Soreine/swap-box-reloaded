@@ -9,14 +9,12 @@
  */
 SB2.Supervisor = function (workers, game) {
     SB2.Worker.call(this, workers, game);
-    this.initializes("GameWorld", "Randomizer", "ScreenLimit", "Sequencer");
 }
 /* Inheritance from Worker */
 SB2.Supervisor.prototype = Object.create(SB2.Worker.prototype);
 SB2.Supervisor.prototype.constructor = SB2.Supervisor;
 
-
-
+SB2.Supervisor.prototype.STARTING_DELAY = 1500;
 
 /** We're going to be using physics, so enable the Arcade Physics system
     And adjust the size of the world. This will implicitly impacts the maximum 
@@ -54,21 +52,28 @@ SB2.Supervisor.prototype.initSequencer = function(){
     );
 };
 
+/** Initialize The Game And All Workers Jobs */
+SB2.Supervisor.prototype.initializeAll = function(){
+    this.initializes("GameWorld", "Randomizer", "ScreenLimit");
+    this.workers.decorator.initializes("Cities");
+    this.workers.manager.initializes("Controls", "Cubes");
+    this.initializes("Sequencer");
+    this.workers.conductor.initializes("Swap", "Music");
+};
+
 /** Update all biomes */
 SB2.Supervisor.prototype.updateBiomes = function(){
     this.sequencer.updateBiomes();
 };
 
-
 SB2.Supervisor.prototype.updateStartingChrono = function(){
     if(!this.chrono){
         this.chrono = new SB2.Timer(this.game);
         this.chrono.start();
-        return SB2.Play.prototype.STARTING;
-    }else if(this.chrono.elapsed > SB2.Supervisor.prototype.STARTING_DELAY) {
+    }else if(this.chrono.elapsed() > SB2.Supervisor.prototype.STARTING_DELAY) {
         this.workers.manager.setCubesState([0,1], SB2.Cube.prototype.STANDING);
         this.workers.cameraman.reset();
         this.workers.conductor.startSwap();
-        return SB2.Play.prototype.RUNNING;
+        this.workers.gameState = SB2.Play.prototype.RUNNING;
     }
 }

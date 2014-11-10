@@ -25,7 +25,7 @@ SB2.Cameraman.prototype.update = function(){
     var delay;
 
     /* Compute the new camera position depending of the time scrolling */
-    delay = this.time.elapsedSince(this.previousTime);
+    delay = this.game.time.elapsedSince(this.previousTime);
     this.game.camera.x += Math.ceil(delay * this.speed / 1000);
     this.previousTime = this.game.time.now;
 };

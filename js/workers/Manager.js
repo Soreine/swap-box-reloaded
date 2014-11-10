@@ -8,7 +8,6 @@
 */
 SB2.Manager = function (workers, game) {
     SB2.Worker.call(this, workers, game);
-    this.initializes("Controls", "Cubes");
 }
 /* Inheritance from Worker */
 SB2.Manager.prototype = Object.create(SB2.Worker.prototype);
@@ -61,6 +60,7 @@ SB2.Manager.prototype.updateCubes = function(){
        || !this.game.physics.arcade.overlap(this.cubes[1], screenLimit)) {
         this.deathTouch();
     }
+    return this.gameState;
 };
 
 /** Called when the two players collide */
@@ -68,6 +68,6 @@ SB2.Manager.prototype.deathTouch = function () {
     this.cubes[0].die();
     this.cubes[1].die();
     /* Update game state and hold music and swap */
-    this.state = SB2.Play.prototype.DYING;
+    this.workers.gameState = SB2.Play.prototype.DYING;
     this.workers.conductor.die();
 };

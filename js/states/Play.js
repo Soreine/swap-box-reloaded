@@ -9,7 +9,7 @@ SB2.Play = function (game) {
     game.state.add("Play", this, false);
 
     /* This object will handle the different workers that strive around the game */
-    this.workers = {};
+    this.workers = { gameState: this.STARTING };
 
 };
 /* Extends Phaser.State */
@@ -41,13 +41,11 @@ SB2.Play.prototype.create = function () {
     
     /* Then, hire the supervisor that will first prepare the game world */
     this.workers.supervisor = new SB2.Supervisor(this.workers, this.game);
-
-    /* Finally, set up the correct state */
-    this.state = this.STARTING;
+    this.workers.supervisor.initializeAll();
 };
 
 SB2.Play.prototype.update = function () {
-    switch(this.state){
+    switch(this.workers.gameState){
         case this.PAUSED: this.updatePaused(); break;
         case this.RUNNING: this.updateRunning(); break;
         case this.STARTING: this.updateStarting(); break;
@@ -61,24 +59,24 @@ SB2.Play.prototype.updateStarting = function () {
     this.workers.supervisor.updateBiomes();
 
     /* Display Starting Chrono and handle starting */
-    this.state = this.workers.supervisor.updateStartingChrono();
-    this.workers.decorator.handleStartingText(this.state);
+    this.workers.supervisor.updateStartingChrono();
+    this.workers.decorator.handleStartingText();
 
     /* Update cubes behavior */
     this.workers.manager.updateCubes();
 };
 SB2.Play.prototype.updateRunning = function () {
-    // /* Update all biomes */
-    // this.workers.supervisor.updateBiomes();
+    /* Update all biomes */
+    this.workers.supervisor.updateBiomes();
 
-    // /* Control swap */
-    // this.workers.conductor.handleSwap();
+    /* Control swap */
+    this.workers.conductor.handleSwap();
     
-    // /* Tell the cameraman to follow players position */
-    // this.workers.cameraman.update();
+    /* Tell the cameraman to follow players position */
+    this.workers.cameraman.update();
 
-    // /* Update cubes states */
-    // this.workers.manager.updateCubes();
+    /* Update cubes states */
+    this.workers.manager.updateCubes();
 };
 SB2.Play.prototype.updateDying = function () {
     // if(this.cube1.state == SB2.Cube.prototype.DEAD ||
@@ -106,4 +104,3 @@ SB2.Play.prototype.render = function () {
     // this.game.debug.cameraInfo(this.game.camera, 25, 32);    
     // this.game.debug.bodyInfo(this.cube1, 500, 32);    
 };
-

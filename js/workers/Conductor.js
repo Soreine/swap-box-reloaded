@@ -8,7 +8,6 @@
  */
 SB2.Conductor = function (workers, game) {
     SB2.Worker.call(this, workers, game);
-    this.initializes("Swap", "Music");
 }
 /* Inheritance from Worker */
 SB2.Conductor.prototype = Object.create(SB2.Worker.prototype);
