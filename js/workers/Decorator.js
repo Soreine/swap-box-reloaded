@@ -15,11 +15,12 @@ SB2.Decorator.prototype.constructor = SB2.Decorator;
 
 // Define the parralax factors for the background scrolling
 SB2.Decorator.prototype.FACTORS = [0.15, 0.30];
-SB2.Decorator.prototype.TEXT_0 = {content: "Ready ?", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2 - 70};
-SB2.Decorator.prototype.TEXT_1 = {content: "Go !", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2 - 70};
+SB2.Decorator.prototype.TEXT_0 = {content: "Ready ?", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2};
+SB2.Decorator.prototype.TEXT_1 = {content: "Go !", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2};
+SB2.Decorator.prototype.TEXT_2 = {content: "You Did Well", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2 - 150};
+SB2.Decorator.prototype.TEXT_3 = {content: "", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2};
 SB2.Decorator.prototype.TEXT_OPTIONS = {font: "bold 70px Helvetica", fill: "#333333", align: "center" };
-
-
+SB2.Decorator.prototype.CITY_NAMES = ['city1', 'city2'];
 
 /** Initialize the backgrounds of the game area */
 SB2.Decorator.prototype.initCities = function(){
@@ -30,9 +31,8 @@ SB2.Decorator.prototype.initCities = function(){
 
     /* Add two cities in the background giving a parallax effect */
     this.cities = [];
-    cityNames = ['city1', 'city2'];
-    for ( i = 0; i < cityNames.length; i++) {
-        city = this.game.add.tileSprite(0, 0, 800, 600, cityNames[i]);
+    for ( i = 0; i < this.CITY_NAMES.length; i++) {
+        city = this.game.add.tileSprite(0, 0, 800, 600, this.CITY_NAMES[i]);
         city.fixedToCamera = true;
         this.cities.push(city);
     }
@@ -55,7 +55,7 @@ SB2.Decorator.prototype.update = function(){
 };
 
 SB2.Decorator.prototype.handleStartingText = function(){
-    switch(this.workers.gameState){
+    switch(this.game.SB2GameState){
         case SB2.Play.prototype.STARTING:
             if(!this.startText){
                 this.startText = this.game.add.text(this.TEXT_0.x, this.TEXT_0.y, this.TEXT_0.content, this.TEXT_OPTIONS);
@@ -68,4 +68,41 @@ SB2.Decorator.prototype.handleStartingText = function(){
                 this.game.add.tween(this.startText).to({alpha: 0}, 1000, Phaser.Easing.Linear.None, true);
             }
     }
+}
+
+SB2.Decorator.prototype.displayScore = function(){
+    if(!this.scoreTimer){
+        this.scoreTimer = new SB2.Timer(this.game);
+        this.scoreTimer.start();
+        this.scoreTextMsg = this.game.add.text(this.TEXT_2.x, this.TEXT_2.y, this.TEXT_2.content, this.TEXT_OPTIONS);
+        this.scoreTextMsg.anchor.set(0.5);
+        this.scoreTextMsg.fixedToCamera = true;
+    }else if(!this.scoreText && this.scoreTimer.elapsed() > this.workers.supervisor.STARTING_DELAY){
+        this.scoreText = this.game.add.text(this.TEXT_3.x, this.TEXT_3.y, String(this.workers.manager.getScore()), this.TEXT_OPTIONS);
+        this.scoreText.anchor.set(0.5);
+        this.scoreText.fixedToCamera = true;
+    }else if(this.scoreTimer.elapsed() > 2 * this.workers.supervisor.STARTING_DELAY){
+        this.workers.supervisor.scoreDisplayed();
+    }
+}
+
+SB2.Decorator.prototype.reset = function(){
+    /** Reset Cities */ 
+    for (var i = 0; i < this.cities.length; i++) {
+        this.cities[i].destroy();
+    }
+    this.previousCamPos = 0;
+
+    /** Delete StartingText*/
+    this.startText.destroy();
+    this.startText = undefined;
+
+    /** Delete DisplayScore */
+    this.scoreTimer = undefined;
+    this.scoreTextMsg.destroy();
+    this.scoreTextMsg = undefined;
+    this.scoreText.destroy();
+    this.scoreText = undefined;
+
+    this.initializes("Cities");
 }

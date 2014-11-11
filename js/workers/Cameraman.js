@@ -35,3 +35,4 @@ SB2.Cameraman.prototype.reset = function(){
     this.previousTime = this.game.time.now;
 };
 
+

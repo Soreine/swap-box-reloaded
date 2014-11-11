@@ -74,6 +74,27 @@ SB2.Supervisor.prototype.updateStartingChrono = function(){
         this.workers.manager.setCubesState([0,1], SB2.Cube.prototype.STANDING);
         this.workers.cameraman.reset();
         this.workers.conductor.startSwap();
-        this.workers.gameState = SB2.Play.prototype.RUNNING;
+        this.game.SB2GameState = SB2.Play.prototype.RUNNING;
     }
+}
+
+/** Called when the game is restarting */
+SB2.Supervisor.prototype.scoreDisplayed = function(){
+    this.workers.decorator.reset();
+    this.workers.manager.reset();
+    this.reset();
+    this.workers.conductor.reset();
+    this.game.SB2GameState = SB2.Play.prototype.STARTING;
+}
+
+SB2.Supervisor.prototype.reset = function(){
+    this.chrono = undefined;
+    this.sequencer.reset();
+    this.initializes("Randomizer", "Sequencer");
+}
+
+SB2.Supervisor.prototype.getTraveledDistance = function(){
+    console.log(this.game.camera.x);
+    console.log(this.sequencer.totalOffset);
+    return this.game.camera.x + this.sequencer.totalOffset;
 }

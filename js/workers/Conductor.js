@@ -122,3 +122,11 @@ SB2.Conductor.prototype.die = function(){
     this.swap.timer.reset();
     this.swap.count = 0; 
 }
+
+SB2.Conductor.prototype.reset = function(){
+    this.swapIndicators.destroy();
+    this.music.destroy();
+    this.muteButton.destroy();
+
+    this.initializes("Swap", "Music");
+}

@@ -8,6 +8,7 @@
 */
 SB2.Manager = function (workers, game) {
     SB2.Worker.call(this, workers, game);
+    this.jumps = 0;
 }
 /* Inheritance from Worker */
 SB2.Manager.prototype = Object.create(SB2.Worker.prototype);
@@ -53,21 +54,40 @@ SB2.Manager.prototype.updateCubes = function(){
     this.cubes[0].myUpdate();
     this.cubes[1].myUpdate();
 
+    this.jumps += this.cubes.map(function(a){return a.state == SB2.Cube.prototype.AIRBORNE ? 1 : 0;}).reduce(function(s,n){return s+n;});
+
     /* Checks to see if the both cubes overlap */
-    screenLimit = this.workers.supervisor.screenLimit;
-    if(this.game.physics.arcade.overlap(this.cubes[0], this.cubes[1])
-       || !this.game.physics.arcade.overlap(this.cubes[0], screenLimit)
-       || !this.game.physics.arcade.overlap(this.cubes[1], screenLimit)) {
-        this.deathTouch();
+    if(this.game.SB2GameState != SB2.Play.prototype.DYING){
+        screenLimit = this.workers.supervisor.screenLimit;
+        if(this.game.physics.arcade.overlap(this.cubes[0], this.cubes[1])
+           || !this.game.physics.arcade.overlap(this.cubes[0], screenLimit)
+           || !this.game.physics.arcade.overlap(this.cubes[1], screenLimit)) {
+            this.deathTouch();
+        }
     }
-    return this.gameState;
+
+    if(this.cubes[0].state == SB2.Cube.prototype.DEAD && this.cubes[1].state == SB2.Cube.prototype.DEAD){
+        this.game.SB2GameState = SB2.Play.prototype.DEAD;
+    }
 };
 
 /** Called when the two players collide */
 SB2.Manager.prototype.deathTouch = function () {
-    this.cubes[0].die();
-    this.cubes[1].die();
-    /* Update game state and hold music and swap */
-    this.workers.gameState = SB2.Play.prototype.DYING;
-    this.workers.conductor.die();
+    if(this.game.SB2GameState != SB2.Play.prototype.DYING){
+        this.game.SB2GameState = SB2.Play.prototype.DYING;
+        this.cubes[0].die();
+        this.cubes[1].die();
+        /* Update game state and hold music and swap */
+        this.workers.conductor.die();
+    }
 };
+
+SB2.Manager.prototype.getScore = function(){
+    var distance = Math.floor(this.workers.supervisor.getTraveledDistance() / 10);
+    var jumps = this.jumps;
+    return distance + jumps;
+}
+
+SB2.Manager.prototype.reset = function(){
+    this.initializes("Cubes");
+}

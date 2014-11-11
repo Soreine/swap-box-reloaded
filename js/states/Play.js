@@ -9,7 +9,7 @@ SB2.Play = function (game) {
     game.state.add("Play", this, false);
 
     /* This object will handle the different workers that strive around the game */
-    this.workers = { gameState: this.STARTING };
+    this.workers = {};
 
 };
 /* Extends Phaser.State */
@@ -23,12 +23,15 @@ SB2.Play.prototype.PAUSED   = 0;
 SB2.Play.prototype.RUNNING  = 1;
 SB2.Play.prototype.STARTING = 2;
 SB2.Play.prototype.DYING    = 3;
+SB2.Play.prototype.DEAD     = 4;
 
 //------------------------------------------------------------------------------
 // State functions
 //------------------------------------------------------------------------------
 SB2.Play.prototype.preload = function () {};
 SB2.Play.prototype.create = function () {    
+    this.game.SB2GameState = this.STARTING;
+
     /* Firstly the manager to handle cubes and controls. */
     this.workers.manager = new SB2.Manager(this.workers, this.game);
 
@@ -45,11 +48,12 @@ SB2.Play.prototype.create = function () {
 };
 
 SB2.Play.prototype.update = function () {
-    switch(this.workers.gameState){
+    switch(this.game.SB2GameState){
         case this.PAUSED: this.updatePaused(); break;
         case this.RUNNING: this.updateRunning(); break;
         case this.STARTING: this.updateStarting(); break;
         case this.DYING: this.updateDying(); break;
+        case this.DEAD: this.updateDead(); break;
     };
 };
 
@@ -79,26 +83,30 @@ SB2.Play.prototype.updateRunning = function () {
     this.workers.manager.updateCubes();
 };
 SB2.Play.prototype.updateDying = function () {
+    this.workers.manager.updateCubes();
+
     // if(this.cube1.state == SB2.Cube.prototype.DEAD ||
     //    this.cube2.state == SB2.Cube.prototype.DEAD) {
 
-    //    this.cube1.myRevive();
-    //    this.cube2.myRevive();
-    //    this.sequencer.currentBiome().setPositions(this.cube1, this.cube2, this.game.camera, this.screenLimit);
-    //    this.game.time.reset();
-    //    this.state = this.STARTING;
-    //    this.tweenStart = false;
-    //    this.startChrono = this.game.time.now;
+    //    // this.cube1.myRevive();
+    //    // this.cube2.myRevive();
+    //    // this.sequencer.currentBiome().setPositions(this.cube1, this.cube2, this.game.camera, this.screenLimit);
+    //    // this.game.time.reset();
+    //    // this.state = this.STARTING;
+    //    // this.tweenStart = false;
+    //    // this.startChrono = this.game.time.now;
 
     //    //Temporaire parce pas l'time
-    //    this.revived = true;
+    //    // this.revived = true;
 
-    //     //this.game.state.start('Play');
+    //     this.game.state.start('Play');
     // } else {
-    //     this.cube1.myUpdate();
-    //     this.cube2.myUpdate();
+    //     this.workers.manager.updateCubes();
     // }
 };
+SB2.Play.prototype.updateDead = function () {
+    this.workers.decorator.displayScore();
+}
 
 SB2.Play.prototype.render = function () {
     // this.game.debug.cameraInfo(this.game.camera, 25, 32);    
