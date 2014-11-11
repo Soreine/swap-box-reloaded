@@ -8,7 +8,7 @@
  * @param {Phaser.Key} right
  * @param {Phaser.Key} left
  */
-SB2.Controls = function (up, down, right, left, dash) {
+SB2.Controls = function (up, down, right, left) {
     this.up = up;
     this.down = down;
     this.right = right;

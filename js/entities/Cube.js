@@ -46,6 +46,7 @@ SB2.Cube.prototype.myUpdate = function () {
     switch(this.state) {
 
     case this.DEAD:
+    case this.STARTING:
         break;
 
     case this.DYING:
@@ -174,7 +175,9 @@ SB2.Cube.prototype.AIRBORNE = 1;
 SB2.Cube.prototype.DYING = 2;
 /** When dead */
 SB2.Cube.prototype.DEAD = 3;
+/* When Starting */
+SB2.Cube.prototype.STARTING = 4;
 
 /** Rotation speed when airborne */
 SB2.Cube.prototype.ROTATION_SPEED = Math.PI*0.0167/SB2.JUMP_DURATION 
-// Frontflip !
+// Frontflip ! <= BADASS AS HELL MOTHAFUCKA
