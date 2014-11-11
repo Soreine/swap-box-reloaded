@@ -35,7 +35,7 @@ SB2.Manager.prototype.initCubes = function(){
     this.cubes = [];
     for(var i = 0; i < 2; i++){
         this.cubes[i] = new SB2.Cube(this.game, 0, 500, this.controls[i], i);
-        this.setCubesState([i], SB2.Cube.prototype.DEAD); // Stop cubes initially
+        this.setCubesState([i], SB2.Cube.prototype.STARTING); // Stop cubes initially
     }
 };
 
@@ -44,7 +44,7 @@ SB2.Manager.prototype.initCubes = function(){
 * @param {Number} state State that has to be set 
 */
 SB2.Manager.prototype.setCubesState = function(ids, state){
-    for(var i = 0; i < ids.length; i++){ this.cubes[i].state = state; }
+    for(var i = 0; i < ids.length; i++){ this.cubes[ids[i]].state = state; }
 };
 
 SB2.Manager.prototype.updateCubes = function(){
@@ -90,4 +90,6 @@ SB2.Manager.prototype.getScore = function(){
 
 SB2.Manager.prototype.reset = function(){
     this.initializes("Cubes");
+    this.distance = 0;
+    this.jumps = 0;
 }

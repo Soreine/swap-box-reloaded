@@ -15,11 +15,17 @@ SB2.Decorator.prototype.constructor = SB2.Decorator;
 
 // Define the parralax factors for the background scrolling
 SB2.Decorator.prototype.FACTORS = [0.15, 0.30];
+SB2.Decorator.prototype.GRAY = "#333333";
+SB2.Decorator.prototype.YELLOW = "#fbab1f";
+SB2.Decorator.prototype.BLUE = "#1989f1";
 SB2.Decorator.prototype.TEXT_0 = {content: "Ready ?", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2};
 SB2.Decorator.prototype.TEXT_1 = {content: "Go !", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2};
-SB2.Decorator.prototype.TEXT_2 = {content: "You Did Well", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2 - 150};
-SB2.Decorator.prototype.TEXT_3 = {content: "", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2};
-SB2.Decorator.prototype.TEXT_OPTIONS = {font: "bold 70px Helvetica", fill: "#333333", align: "center" };
+SB2.Decorator.prototype.TEXT_2 = {content: "Score", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2 - 50};
+SB2.Decorator.prototype.TEXT_3 = {content: "", x: SB2.WIDTH/2, y: SB2.HEIGHT / 2 + 50};
+SB2.Decorator.prototype.TEXT_OPTIONS = {font: "bold 70px Helvetica", fill: SB2.Decorator.prototype.GRAY, align: "center" };
+SB2.Decorator.prototype.TEXT_OPTIONS_2 = {font: "bold 70px Helvetica", fill: SB2.Decorator.prototype.YELLOW, align: "center" };
+SB2.Decorator.prototype.TEXT_OPTIONS_3 = {font: "bold 70px Helvetica", fill: SB2.Decorator.prototype.BLUE, align: "center" };
+
 SB2.Decorator.prototype.CITY_NAMES = ['city1', 'city2'];
 
 /** Initialize the backgrounds of the game area */
@@ -72,16 +78,25 @@ SB2.Decorator.prototype.handleStartingText = function(){
 
 SB2.Decorator.prototype.displayScore = function(){
     if(!this.scoreTimer){
+        /* Add a White Transparent Background For Readibility */
+        this.backgroundScore = this.game.add.graphics(0,0);
+        this.backgroundScore.fixedToCamera = true;
+        this.backgroundScore.beginFill(0xffffff, 1);
+        this.backgroundScore.drawRect(0,0,800,600);
+        this.backgroundScore.endFill();
+        this.backgroundScore.alpha = 0;
+        this.game.add.tween(this.backgroundScore).to({alpha: 0.4}, this.workers.supervisor.STARTING_DELAY / 2, Phaser.Easing.Linear.None, true);
+
         this.scoreTimer = new SB2.Timer(this.game);
         this.scoreTimer.start();
+    } else if(!this.scoreTextMsg && this.scoreTimer.elapsed() > this.workers.supervisor.STARTING_DELAY / 2){
         this.scoreTextMsg = this.game.add.text(this.TEXT_2.x, this.TEXT_2.y, this.TEXT_2.content, this.TEXT_OPTIONS);
-        this.scoreTextMsg.anchor.set(0.5);
-        this.scoreTextMsg.fixedToCamera = true;
-    }else if(!this.scoreText && this.scoreTimer.elapsed() > this.workers.supervisor.STARTING_DELAY){
         this.scoreText = this.game.add.text(this.TEXT_3.x, this.TEXT_3.y, String(this.workers.manager.getScore()), this.TEXT_OPTIONS);
+        this.scoreTextMsg.fixedToCamera = true;
+        this.scoreTextMsg.anchor.set(0.5);
         this.scoreText.anchor.set(0.5);
         this.scoreText.fixedToCamera = true;
-    }else if(this.scoreTimer.elapsed() > 2 * this.workers.supervisor.STARTING_DELAY){
+    } else if(this.scoreTimer.elapsed() > 2 * this.workers.supervisor.STARTING_DELAY){
         this.workers.supervisor.scoreDisplayed();
     }
 }
@@ -103,6 +118,6 @@ SB2.Decorator.prototype.reset = function(){
     this.scoreTextMsg = undefined;
     this.scoreText.destroy();
     this.scoreText = undefined;
-
+    this.backgroundScore.destroy();
     this.initializes("Cities");
 }

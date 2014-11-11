@@ -69,6 +69,7 @@ SB2.Play.prototype.updateStarting = function () {
     /* Update cubes behavior */
     this.workers.manager.updateCubes();
 };
+
 SB2.Play.prototype.updateRunning = function () {
     /* Update all biomes */
     this.workers.supervisor.updateBiomes();
@@ -82,28 +83,11 @@ SB2.Play.prototype.updateRunning = function () {
     /* Update cubes states */
     this.workers.manager.updateCubes();
 };
+
 SB2.Play.prototype.updateDying = function () {
     this.workers.manager.updateCubes();
-
-    // if(this.cube1.state == SB2.Cube.prototype.DEAD ||
-    //    this.cube2.state == SB2.Cube.prototype.DEAD) {
-
-    //    // this.cube1.myRevive();
-    //    // this.cube2.myRevive();
-    //    // this.sequencer.currentBiome().setPositions(this.cube1, this.cube2, this.game.camera, this.screenLimit);
-    //    // this.game.time.reset();
-    //    // this.state = this.STARTING;
-    //    // this.tweenStart = false;
-    //    // this.startChrono = this.game.time.now;
-
-    //    //Temporaire parce pas l'time
-    //    // this.revived = true;
-
-    //     this.game.state.start('Play');
-    // } else {
-    //     this.workers.manager.updateCubes();
-    // }
 };
+
 SB2.Play.prototype.updateDead = function () {
     this.workers.decorator.displayScore();
 }
