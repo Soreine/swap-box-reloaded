@@ -17,7 +17,8 @@ if(!SB2.BASE_PATH) {
 // Constants
 // -----------------------------------------------------------------------------
 /** The assets folder */
-SB2.ASSETS = SB2.BASE_PATH + "js/assets/";
+SB2.GRAPHIC_ASSETS = SB2.BASE_PATH + "js/assets/graphics/";
+SB2.SOUND_ASSETS = SB2.BASE_PATH + "js/assets/sounds/";
 
 /** The base distance unit for the game, in pixel. Equivalent to
  * the size of the player's cubes */
