@@ -8,6 +8,6 @@ The main features are :
 * Playable in the browser
 
 The game use Javascript and the [Phaser library](http://phaser.io/) We
-noticed best performance using the Google Chrome browser. The game is
-playable directly
-*[here](http://soreine.github.io/swap-box-reloaded/)*
+noticed best performance using the Google Chrome browser. **The game
+can be played directly
+[here](http://soreine.github.io/swap-box-reloaded/).**
