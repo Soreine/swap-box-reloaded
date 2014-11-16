@@ -34,7 +34,7 @@ SB2.BACKGROUND_COLOR = 0xffffff;
 /** The duration of a jump on flat ground in seconds */
 SB2.JUMP_DURATION = 0.5;
 /** The height of a jump */
-SB2.JUMP_HEIGHT = SB2.UNIT*4;
+SB2.JUMP_HEIGHT = SB2.UNIT*4.5;
 /** The height of a jump */
 SB2.JUMP_LENGTH = SB2.JUMP_HEIGHT*1.5;
 
@@ -61,7 +61,7 @@ SB2.INDIC_THICK = 10;
 SB2.STATES = {};
 
 /** Is the music muted ? */
-SB2.muted = true;
+SB2.muted = false;
 
 //------------------------------------------------------------------------------
 window.onload = function () {

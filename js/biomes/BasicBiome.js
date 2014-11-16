@@ -5,7 +5,7 @@
 /** @see Biome */
 SB2.BasicBiome = function (randomizer, endOfLastBiome, game) {
     // Call the parent constructor
-    this.width = 1750;
+    this.width = 75 * SB2.UNIT;
     SB2.Biome.call(this, randomizer, endOfLastBiome, this.width, game);
 };
 
@@ -27,8 +27,8 @@ SB2.BasicBiome.prototype.setUpContent = function(game) {
     posY = botLimit;
 
     while(posX < remaining) {
-        posX += this.randomizer.randBetween(SB2.UNIT, SB2.UNIT*3)
-        posY += this.randomizer.randBetween(SB2.UNIT, SB2.UNIT*3) * (this.randomizer.randBetween(0, 10) > 7 ? 1 : -1);
+        posX +=  Math.floor(this.randomizer.randBetween(SB2.UNIT, SB2.UNIT*3))
+        posY +=  Math.floor(this.randomizer.randBetween(SB2.UNIT, SB2.UNIT*3)) * (this.randomizer.randBetween(0, 10) > 7 ? 1 : -1);
         posY = posY > botLimit ? botLimit : (posY < 0 ? 0 : posY); 
         width = this.randomizer.randBetween(SB2.UNIT*2, SB2.UNIT*5);
         this.addPlatform(posX, posY, width, SB2.Biome.MEDIUM);  
@@ -38,5 +38,5 @@ SB2.BasicBiome.prototype.setUpContent = function(game) {
 
 /** @see SB2.Biome */
 SB2.BasicBiome.prototype.getRarity = function() {
-    return 6;
+    return 8;
 };

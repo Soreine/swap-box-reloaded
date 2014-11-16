@@ -14,7 +14,7 @@ SB2.Supervisor = function (workers, game) {
 SB2.Supervisor.prototype = Object.create(SB2.Worker.prototype);
 SB2.Supervisor.prototype.constructor = SB2.Supervisor;
 
-SB2.Supervisor.prototype.STARTING_DELAY = 1500;
+SB2.Supervisor.prototype.STARTING_DELAY = 800;
 
 /** We're going to be using physics, so enable the Arcade Physics system
     And adjust the size of the world. This will implicitly impacts the maximum 
@@ -94,7 +94,5 @@ SB2.Supervisor.prototype.reset = function(){
 }
 
 SB2.Supervisor.prototype.getTraveledDistance = function(){
-    console.log(this.game.camera.x);
-    console.log(this.sequencer.totalOffset);
     return this.game.camera.x + this.sequencer.totalOffset;
 }

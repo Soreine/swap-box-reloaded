@@ -22,10 +22,10 @@ SB2.Manager.prototype.initControls = function () {
        null,
        kb.addKey(Phaser.Keyboard.RIGHT),
        kb.addKey(Phaser.Keyboard.LEFT)) ;
-    this.controls[1] = new SB2.Controls(kb.addKey(Phaser.Keyboard.Z),
+    this.controls[1] = new SB2.Controls(kb.addKey(Phaser.Keyboard.FIVE),
        null,
-       kb.addKey(Phaser.Keyboard.D),
-       kb.addKey(Phaser.Keyboard.Q));
+       kb.addKey(Phaser.Keyboard.Y),
+       kb.addKey(Phaser.Keyboard.R));
 };
 
 /** Initialize the two cubes/players; The cube definitive's position 
