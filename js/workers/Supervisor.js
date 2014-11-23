@@ -28,7 +28,7 @@ SB2.Supervisor.prototype.initGameWorld = function(){
     instanciating a pseudo-random generator using a specific string
     that could be for example, the name of the level. */
 SB2.Supervisor.prototype.initRandomizer = function(){
-    this.phrase = SB2.seed || "God's Final Message to His Creation: We apologize for the inconvenience.";
+    this.phrase = SB2.seed || "tryrtyfh";
     this.seed = SB2.Randomizer.prototype.genSeedFromPhrase(this.phrase);
     this.randomizer = new SB2.Randomizer(this.seed);
 };
