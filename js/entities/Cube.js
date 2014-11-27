@@ -180,4 +180,4 @@ SB2.Cube.prototype.STARTING = 4;
 
 /** Rotation speed when airborne */
 SB2.Cube.prototype.ROTATION_SPEED = Math.PI*0.0167/SB2.JUMP_DURATION 
-// Frontflip ! <= BADASS AS HELL MOTHAFUCKA
+// Frontflip !
