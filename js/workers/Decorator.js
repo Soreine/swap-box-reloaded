@@ -2,13 +2,20 @@
 /* global Phaser */
 "use strict";
 
+// REFACTOR : camera changed event -> any background object will
+// update itself. A background object has a parallax factor (or
+// background distance) attributes etc.
+
+// REFACTOR : dependencies on sueprvisor and manager : first need to
+// split the responsibilities
 /** The decorator is in charge of the background animations.
 * @param {Object} workers The powerful team that does a great job
 * @param {Phaser.Game} game The instance of the Game
 */
 SB2.Decorator = function (workers, game) {
     SB2.Worker.call(this, workers, game);
-}
+};
+
 /* Inheritance from Worker */
 SB2.Decorator.prototype = Object.create(SB2.Worker.prototype);
 SB2.Decorator.prototype.constructor = SB2.Decorator;
@@ -44,7 +51,7 @@ SB2.Decorator.prototype.initCities = function(){
     }
 
     /* Keep the instance of the game's camera, and set up it previous pos. */
-    this.gameCamera = this.game.camera
+    this.gameCamera = this.game.camera;
     this.previousCamPos = this.game.camera.x;
 };
 
@@ -64,7 +71,7 @@ SB2.Decorator.prototype.handleStartingText = function(){
     switch(this.game.SB2GameState){
         case SB2.Play.prototype.STARTING:
             if(!this.startText){
-                this.addPannel();
+                this.addPanel();
                 this.startText = this.game.add.text(this.TEXT_0.x, this.TEXT_0.y, this.TEXT_0.content, this.TEXT_OPTIONS);
                 this.startText.anchor.set(0.5);
                 this.game.add.tween(this.startText).to({x: this.TEXT_0.x - 200}, 1000, Phaser.Easing.Quadratic.Out, true);
@@ -77,10 +84,10 @@ SB2.Decorator.prototype.handleStartingText = function(){
                 this.startText.anchor.set(0.5);
                 this.game.add.tween(this.startText).to({alpha: 0}, 700, Phaser.Easing.Linear.None, true);
                 this.game.add.tween(this.startText.scale).to({x: 2, y: 2}, 700, Phaser.Easing.Quadratic.Out, true);
-                this.game.add.tween(this.pannel).to({x: -800}, 500, Phaser.Easing.Quadratic.Out, true);
+                this.game.add.tween(this.panel).to({x: -800}, 500, Phaser.Easing.Quadratic.Out, true);
             }
     }
-}
+};
 
 SB2.Decorator.prototype.displayScore = function(){
     if(!this.scoreTimer){
@@ -99,18 +106,18 @@ SB2.Decorator.prototype.displayScore = function(){
     }
 };
 
-SB2.Decorator.prototype.addPannel = function(){
+SB2.Decorator.prototype.addPanel = function(){
     /* Add a White Transparent Background For Readibility */
-    this.pannel = this.game.add.graphics(0,0);
-    this.pannel.beginFill(0xffffff, 1);
-    this.pannel.drawRect(0,SB2.HEIGHT / 2 - 90,800,150);
-    this.pannel.endFill();
-    this.pannel.beginFill(0x333333, 1);
-    this.pannel.drawRect(0,SB2.HEIGHT / 2 + 50, 800, 20);
-    this.pannel.drawRect(0,SB2.HEIGHT / 2 - 100, 800, 20);
-    this.pannel.endFill();
-    this.pannel.x = 800;
-    this.game.add.tween(this.pannel).to({x: 0}, 250, Phaser.Easing.Quadratic.Out, true);
+    this.panel = this.game.add.graphics(0,0);
+    this.panel.beginFill(0xffffff, 1);
+    this.panel.drawRect(0,SB2.HEIGHT / 2 - 90,800,150);
+    this.panel.endFill();
+    this.panel.beginFill(0x333333, 1);
+    this.panel.drawRect(0,SB2.HEIGHT / 2 + 50, 800, 20);
+    this.panel.drawRect(0,SB2.HEIGHT / 2 - 100, 800, 20);
+    this.panel.endFill();
+    this.panel.x = 800;
+    this.game.add.tween(this.panel).to({x: 0}, 250, Phaser.Easing.Quadratic.Out, true);
 };
 
 SB2.Decorator.prototype.addWhiteBackground = function(delay){
@@ -143,6 +150,6 @@ SB2.Decorator.prototype.reset = function(){
     this.scoreText.destroy();
     this.scoreText = undefined;
     this.backgroundScore.destroy();
-    this.pannel.destroy();
+    this.panel.destroy();
     this.initializes("Cities");
-}
+};

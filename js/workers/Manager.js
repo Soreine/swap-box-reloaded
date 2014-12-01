@@ -9,11 +9,14 @@
 SB2.Manager = function (workers, game) {
     SB2.Worker.call(this, workers, game);
     this.jumps = 0;
-}
+};
+
 /* Inheritance from Worker */
 SB2.Manager.prototype = Object.create(SB2.Worker.prototype);
 SB2.Manager.prototype.constructor = SB2.Manager;
 
+
+// REFACTOR : externalize the controls. Controls are shared SB2 variables, set at menu time
 /** Initialize the controls for player 1 and 2 */
 SB2.Manager.prototype.initControls = function () {
     var kb = this.game.input.keyboard;
@@ -39,6 +42,19 @@ SB2.Manager.prototype.initCubes = function(){
     }
 };
 
+
+// REFACTOR concernant setCubesState ci-dessous : ok Matthias je veux
+// bien qu'écrire deux lignes identiques ça soit relou. Mais là ça
+// devient incensé :-p, tu pars de 2 lignes de codes identiques à 1
+// ligne de code + une fonction de deux lignes et sa doc. Utilise des
+// fonctions anonymes si tu veux. Exemple :
+/*
+ var traitement = function(cube) {plein de traitements of cube};
+ traitement(cube1);
+ traitement(cube2);
+*/
+// Ou alors utilise forEach sur le tableau [cube1, cube2]
+// https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
 /** Set the state of one or both cube 
 * @param {Array} ids Ids of cube for which state should be changed
 * @param {Number} state State that has to be set 
@@ -54,8 +70,12 @@ SB2.Manager.prototype.updateCubes = function(){
     this.cubes[0].myUpdate();
     this.cubes[1].myUpdate();
 
-    this.jumps += this.cubes.map(function(a){return a.state == SB2.Cube.prototype.AIRBORNE ? 1 : 0;}).reduce(function(s,n){return s+n;});
+    // REFACTOR : event jump
+    this.jumps += this.cubes.map(function(a) {return a.state == SB2.Cube.prototype.AIRBORNE ? 1 : 0;}
+    ).reduce(function(s,n){return s+n;});
 
+    
+    // REFACTOR : event cubes collide (and this should be handled by a Physicist class)
     /* Checks to see if the both cubes overlap */
     if(this.game.SB2GameState != SB2.Play.prototype.DYING){
         screenLimit = this.workers.supervisor.screenLimit;
@@ -65,12 +85,16 @@ SB2.Manager.prototype.updateCubes = function(){
             this.deathTouch();
         }
     }
-
+    
+    // REFACTOR : event cubes collide
     if(this.cubes[0].state == SB2.Cube.prototype.DEAD && this.cubes[1].state == SB2.Cube.prototype.DEAD){
         this.game.SB2GameState = SB2.Play.prototype.DEAD;
     }
 };
 
+
+// REFACTOR : this behavior is specific to Play and depend of its
+// state. So let's keep it in Play.js
 /** Called when the two players collide */
 SB2.Manager.prototype.deathTouch = function () {
     if(this.game.SB2GameState != SB2.Play.prototype.DYING){
@@ -86,10 +110,10 @@ SB2.Manager.prototype.getScore = function(){
     var distance = Math.floor(this.workers.supervisor.getTraveledDistance() / 10);
     var jumps = this.jumps;
     return distance + jumps;
-}
+};
 
 SB2.Manager.prototype.reset = function(){
     this.initializes("Cubes");
     this.distance = 0;
     this.jumps = 0;
-}
+};

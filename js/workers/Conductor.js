@@ -2,6 +2,8 @@
 /* global Phaser */
 "use strict";
 
+// REFACTOR : Separate this class : one should handle music (and
+// sound?)  the other will handle the swap timing.
 /** The conductor will handle the music and the swap during the game. 
     @param {Object} workers The powerful team that does a great job
  * @param {Phaser.Game} game The game instance
