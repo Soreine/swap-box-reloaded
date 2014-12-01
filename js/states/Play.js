@@ -40,7 +40,7 @@ SB2.Play.prototype.create = function () {
     this.workers.cameraman = new SB2.Cameraman(this.game);
 
     /* Finally, the last member of the team, the conductor. */
-    this.workers.conductor = new SB2.Conductor(this.workers, this.game);
+    this.workers.conductor = new SB2.Conductor(this.game);
     
     /* Then, hire the supervisor that will first prepare the game world */
     this.workers.supervisor = new SB2.Supervisor(this.workers, this.game);
@@ -57,7 +57,8 @@ SB2.Play.prototype.update = function () {
     };
 };
 
-SB2.Play.prototype.updatePaused = function(){}
+SB2.Play.prototype.updatePaused = function(){};
+
 SB2.Play.prototype.updateStarting = function () {
     /* Update all biomes */
     this.workers.supervisor.updateBiomes();
@@ -75,7 +76,7 @@ SB2.Play.prototype.updateRunning = function () {
     this.workers.supervisor.updateBiomes();
 
     /* Control swap */
-    this.workers.conductor.handleSwap();
+    this.workers.conductor.handleSwap(this.workers.manager);
     
     /* Tell the cameraman to follow players position */
     this.workers.cameraman.update();

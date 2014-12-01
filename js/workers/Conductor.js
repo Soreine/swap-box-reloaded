@@ -6,9 +6,10 @@
     @param {Object} workers The powerful team that does a great job
  * @param {Phaser.Game} game The game instance
  */
-SB2.Conductor = function (workers, game) {
-    SB2.Worker.call(this, workers, game);
-}
+SB2.Conductor = function (game) {
+    SB2.Worker.call(this, undefined, game);
+};
+
 /* Inheritance from Worker */
 SB2.Conductor.prototype = Object.create(SB2.Worker.prototype);
 SB2.Conductor.prototype.constructor = SB2.Conductor;
@@ -81,15 +82,20 @@ SB2.Conductor.prototype.startSwap = function(){
     this.music.loop = true;
 };
 
+
+// REFACTOR : handle swap should be an event (swap time) and the
+// manager will handle it for cube swap, and another component may
+// handle it to create the on screen swap effect.
 /** Measure time and swap controls if needed. Also in charge of
- * displaying timing indicators */
-SB2.Conductor.prototype.handleSwap = function(){
+ * displaying timing indicators
+ * @param {Manager} manager Reference to the cube manager */
+SB2.Conductor.prototype.handleSwap = function(manager){
     // Check the timer 
     if(this.swap.timer.elapsed() > SB2.INDIC_PERIOD*this.swap.count) {
         // If it's the last indicator
         if(this.swap.count % SB2.NUM_INDIC == 2) {
             // Make a swap
-            SB2.Cube.swap(this.workers.manager.cubes[0], this.workers.manager.cubes[1]);
+            SB2.Cube.swap(manager.cubes[0], manager.cubes[1]);
             // Make a primary flash
             this.swapIndicators.alpha = 1.0;
             this.swapTween.primary.start();
