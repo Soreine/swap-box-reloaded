@@ -37,10 +37,10 @@ SB2.Play.prototype.create = function () {
 
     /* Now instanciate the decorator and the cameraman */
     this.workers.decorator = new SB2.Decorator(this.workers, this.game);
-    this.workers.cameraman = new SB2.Cameraman(this.workers, this.game);
+    this.workers.cameraman = new SB2.Cameraman(this.game);
 
     /* Finally, the last member of the team, the conductor. */
-    this.workers.conductor = new SB2.Conductor(this.workers, this.game)
+    this.workers.conductor = new SB2.Conductor(this.workers, this.game);
     
     /* Then, hire the supervisor that will first prepare the game world */
     this.workers.supervisor = new SB2.Supervisor(this.workers, this.game);

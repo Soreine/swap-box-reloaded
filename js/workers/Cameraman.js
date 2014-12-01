@@ -7,8 +7,8 @@
 * @param {Phaser.Game} game The instance of the Game
 * @param {Number} <optionnal> speed Lateral speed of the camera, in unit per second
 */
-SB2.Cameraman = function (workers, game, speed) {
-    SB2.Worker.call(this, workers, game);
+SB2.Cameraman = function (game, speed) {
+    SB2.Worker.call(this, undefined, game);
     // The speed is optionnal and got a specific default value if not precised
     this.speed = speed || this.DEFAULT_SPEED;
 };
