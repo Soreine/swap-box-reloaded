@@ -86,12 +86,14 @@ SB2.Biome.prototype = {
         this.endOfLastBiome -= offset;
         this.content.platforms.subAll('x', offset, true);
         this.content.pillars.subAll('x', offset, true);
+        this.content.stalagtites.subAll('x', offset, true);
     }, 
 
     /** Remove the biome from the game */
     killYourself: function() {
         this.content.platforms.destroy();
         this.content.pillars.destroy();
+        this.content.stalagtites.destroy();
     },
 
     /** Evaluate whether a biome has been displayed or not
@@ -133,6 +135,17 @@ SB2.Biome.prototype = {
         var pillar = this.content.pillars.create(x, y, 'plain');
         pillar.scale.setTo(width, SB2.HEIGHT - y);
         pillar.body.immovable = true;
+    },
+
+    /** Add a stalagtite to the biome, i.e. a portion of field that reach the screen's top 
+    * @param {Number} x The x coordinate of the stalagtite's bottom-left corner
+    * @param {Number} y The y coordinate of the stalagtite's bottom-left corner
+    * @param {Number} width The width of the stalagtite
+    */
+    addStalagtite: function(x, y, width) {
+        var stalagtite = this.content.pillars.create(x, 0, 'plain');
+        stalagtite.scale.setTo(width, y);
+        stalagtite.body.immovable = true;
     },
 
     /** Add lava to the biome, i.e. a portion of field that players can't touch without dying

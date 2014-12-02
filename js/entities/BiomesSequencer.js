@@ -17,6 +17,7 @@ SB2.BiomesSequencer = function(randomizer, cube1, cube2, screenLimit, game, stac
 
     this.biomes = [];
     this.endOfLastBiome = SB2.WIDTH / 2;
+    this.totalOffset = 0;
 
     // Instanciate the first biome in the sequencer
     for(i = 0; i < this.stackSize; i++) {
@@ -87,6 +88,7 @@ SB2.BiomesSequencer.prototype = {
         var i, length, removed, toShift;
 
         removed = this.biomes.pop()
+        this.totalOffset += removed.getWidth();
 
         toShift = [ this.cube1.body,  this.cube2.body, this.game.camera,  this.screenLimit.body]
         for(length = toShift.length, i = 0; i < length; i++) {
@@ -116,7 +118,10 @@ SB2.BiomesSequencer.prototype = {
     */
     currentBiome: function(){
         return this.biomes.slice(-1)[0];
+    },
+
+    reset: function(){
+        this.biomes.map(function(a){a.killYourself();});
+        this.biomes = [];
     }
-
-
 };

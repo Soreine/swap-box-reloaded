@@ -2,115 +2,24 @@
 <html lang="en"> 
   <head> 
     <meta charset="UTF-8" />
-    <title>Swap Box Turbo 2</title>
-    <link href='http://fonts.googleapis.com/css?family=Share+Tech+Mono' rel='stylesheet' type='text/css'>
+    <title>Swap Box Reloaded</title>
     <link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
-    <style type="text/css">
-     #SB2 {
-       position:relative;
-       width:800px;
-       height:600px;
-       border-style:none;
-     }
-
-     #SB2 canvas {
-       position:absolute;
-       z-index:1;
-     }
-
-     .overlay {
-       z-index:2;
-       position:absolute;
-       visibility:hidden;
-     }
-
-     button.overlay {
-       top:45%;
-       left:35%;
-       height:10%;
-       width:30%;
-       background-color:#1989f1;
-       box-shadow:2px 2px 10px #999;
-       border-color:;
-       border-style:none;
-       border-width:2px;
-       font-family: Roboto, sans-serif;
-       font-size:2.4em;
-       letter-spacing:0.35em;
-       color:#eee;
-       transition:background-color ease-out 0.2s;
-     }
-     button.overlay:hover {
-       background-color:#1969E1;
-       transition:background-color ease-out 0.2s;
-     }
-
-     input.overlay {
-       top:65%;
-       left:35%;
-       height:10%;
-       width:27.25%;
-       background-color:rgba(255,255,255,0.8);
-       border-style:solid;
-       border-color:#1989f1;
-       border-width:3px;
-       font-family: monospace;
-       font-size:1.7em;
-       padding:0 1%;
-       text-align:center;
-       color:#1989f1;
-     }
-
-     #SB2-title.overlay {
-       pointer-events: none;
-       top:20%;
-       width:100%;
-       text-align:center;
-       font-family: Roboto, sans-serif;
-       font-size:3em;
-       letter-spacing:0.15em;
-       color:#666;
-     }
-
-     .key {
-       pointer-events:none;
-       text-align:center;
-       vertical-align:middle;
-       font-size:30px;
-       font-family: Roboto, sans-serif;
-       width:50px;
-       height:50px;
-       line-height:50px;
-       border-style:solid;
-       border-width:2px;
-       border-radius:2px;
-       background-color:rgba(255,255,255,0.5);
-     }
-
-     .p1 {
-       color:#1989f1;
-       border-color:#1989f1;
-     }
-
-     .p2 {
-       color:#fbab1f;
-       border-color:#fbab1f;
-     }
-    </style>
+    <link rel="stylesheet" href="css/menu.css" />
   </head>
   <body>
     <div id="SB2">
-      <div class="overlay" id="SB2-title">
-        SWAP BOX TURBO 2
+      <div class="overlay" id="SB2-title" style="top:15%;">
+        SWAP BOX RELOADED
       </div>
-      <button class="overlay" id="SB2-play">PLAY</button>
-      <input class="overlay" id="SB2-seed"
+      <button class="overlay" id="SB2-play" style="top:35%;left:35%;">PLAY</button>
+      <input class="overlay" id="SB2-seed" style="top:50%;left:35%;"
              type="text" 
              autocomplete="false"
              maxlength="16"
              name="firstname"
              autofocus="autofocus"
              placeholder="Level name&hellip;">
+      <img class="overlay" src="js/assets/graphics/swap.png" style="top:400px;left:300px;">
       <div class="overlay key p2" style="top:85%;left:5%">R</div>
       <div class="overlay key p2" style="top:75%;left:12%">5</div>
       <div class="overlay key p2" style="top:85%;left:19%">Y</div>
@@ -121,17 +30,27 @@
     
     <script  src="/js/libs/phaser.min.js"></script>
     <script  src="/js/main.js"></script>
+
     <script  src="/js/states/Loader.js"></script>
     <script  src="/js/states/Menu.js"></script>
     <script  src="/js/states/Play.js"></script>
+
+    <script  src="/js/workers/Worker.js"></script>
+    <script  src="/js/workers/Cameraman.js"></script>
+    <script  src="/js/workers/Decorator.js"></script>
+    <script  src="/js/workers/Conductor.js"></script>
+    <script  src="/js/workers/Supervisor.js"></script>
+    <script  src="/js/workers/Manager.js"></script>
+
     <script  src="/js/entities/Cube.js"></script>
     <script  src="/js/entities/Controls.js"></script>
-    <script  src="/js/entities/Cameraman.js"></script>
     <script  src="/js/entities/Randomizer.js"></script>
     <script  src="/js/entities/Timer.js"></script>
+
     <script  src="/js/biomes/Biome.js"></script>
     <script  src="/js/biomes/BasicBiome.js"></script>
     <script  src="/js/biomes/PillarBiome.js"></script>
+    <script  src="/js/biomes/CavityBiome.js"></script>
     <script  src="/js/entities/BiomesSequencer.js"></script>
   </body>
 </html>

@@ -17,7 +17,8 @@ if(!SB2.BASE_PATH) {
 // Constants
 // -----------------------------------------------------------------------------
 /** The assets folder */
-SB2.ASSETS = SB2.BASE_PATH + "js/assets/";
+SB2.GRAPHIC_ASSETS = SB2.BASE_PATH + "js/assets/graphics/";
+SB2.SOUND_ASSETS = SB2.BASE_PATH + "js/assets/sounds/";
 
 /** The base distance unit for the game, in pixel. Equivalent to
  * the size of the player's cubes */
@@ -34,7 +35,7 @@ SB2.BACKGROUND_COLOR = 0xffffff;
 /** The duration of a jump on flat ground in seconds */
 SB2.JUMP_DURATION = 0.5;
 /** The height of a jump */
-SB2.JUMP_HEIGHT = SB2.UNIT*4;
+SB2.JUMP_HEIGHT = SB2.UNIT*4.5;
 /** The height of a jump */
 SB2.JUMP_LENGTH = SB2.JUMP_HEIGHT*1.5;
 
