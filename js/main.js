@@ -20,8 +20,8 @@ if(!SB2.BASE_PATH) {
 SB2.GRAPHIC_ASSETS = SB2.BASE_PATH + "js/assets/graphics/";
 SB2.SOUND_ASSETS = SB2.BASE_PATH + "js/assets/sounds/";
 
-/** The base distance unit for the game, in pixel. Equivalent to
- * the size of the player's cubes */
+/** The base distance unit for the game, in pixel. Equals the size of
+ * the player's cubes */
 SB2.UNIT = 30;
 
 /** The resolution of the game window */
@@ -53,10 +53,6 @@ SB2.SWAP_PERIOD = 1500;
 SB2.SECONDARY_INDICATOR = false;
 /** Number of flashes between two swap */
 SB2.NUM_INDIC = 4;
-/** Secondary Indicator period */
-SB2.INDIC_PERIOD = SB2.SWAP_PERIOD/SB2.NUM_INDIC;
-/** Indicator thickness */
-SB2.INDIC_THICK = 10;
 
 /** The different game states */
 SB2.STATES = {};

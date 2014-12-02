@@ -59,13 +59,13 @@ SB2.Supervisor.prototype.initSequencer = function(){
     );
 };
 
+// REFACTOR : this should not be
 /** Initialize The Game And All Workers Jobs */
 SB2.Supervisor.prototype.initializeAll = function(){
     this.initializes("GameWorld", "Randomizer", "ScreenLimit");
     this.workers.decorator.initializes("Cities");
     this.workers.manager.initializes("Controls", "Cubes");
     this.initializes("Sequencer");
-    this.workers.conductor.initializes("Swap", "Music");
 };
 
 /** Update all biomes */
@@ -80,7 +80,8 @@ SB2.Supervisor.prototype.updateStartingChrono = function(){
     }else if(this.chrono.elapsed() > SB2.Supervisor.prototype.STARTING_DELAY) {
         this.workers.manager.setCubesState([0,1], SB2.Cube.prototype.STANDING);
         this.workers.cameraman.reset();
-        this.workers.conductor.startSwap();
+        this.workers.swapper.start();
+        this.workers.musician.startMusic();
         this.game.SB2GameState = SB2.Play.prototype.RUNNING;
     }
 };
@@ -90,7 +91,6 @@ SB2.Supervisor.prototype.scoreDisplayed = function(){
     this.workers.decorator.reset();
     this.workers.manager.reset();
     this.reset();
-    this.workers.conductor.reset();
     this.game.SB2GameState = SB2.Play.prototype.STARTING;
 };
 

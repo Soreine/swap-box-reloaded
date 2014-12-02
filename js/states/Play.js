@@ -10,7 +10,6 @@ SB2.Play = function (game) {
 
     /* This object will handle the different workers that strive around the game */
     this.workers = {};
-
 };
 /* Extends Phaser.State */
 SB2.Play.prototype = Object.create(Phaser.State.prototype);
@@ -29,20 +28,16 @@ SB2.Play.prototype.DEAD     = 4;
 // State functions
 //------------------------------------------------------------------------------
 SB2.Play.prototype.preload = function () {};
+
 SB2.Play.prototype.create = function () {    
     this.game.SB2GameState = this.STARTING;
 
-    /* Firstly the manager to handle cubes and controls. */
+    /* Instanciate all the workers (components) */
     this.workers.manager = new SB2.Manager(this.workers, this.game);
-
-    /* Now instanciate the decorator and the cameraman */
     this.workers.decorator = new SB2.Decorator(this.workers, this.game);
     this.workers.cameraman = new SB2.Cameraman(this.game);
-
-    /* Finally, the last member of the team, the conductor. */
-    this.workers.conductor = new SB2.Conductor(this.game);
-    
-    /* Then, hire the supervisor that will first prepare the game world */
+    this.workers.musician = new SB2.Musician(this.game);
+    this.workers.swapper = new SB2.Swapper(this.game);
     this.workers.supervisor = new SB2.Supervisor(this.workers, this.game);
     this.workers.supervisor.initializeAll();
 };
@@ -68,7 +63,7 @@ SB2.Play.prototype.updateStarting = function () {
     this.workers.decorator.handleStartingText();
 
     /* Update cubes behavior */
-    this.workers.manager.updateCubes();
+    this.workers.manager.updateCubes(this);
 };
 
 SB2.Play.prototype.updateRunning = function () {
@@ -76,17 +71,17 @@ SB2.Play.prototype.updateRunning = function () {
     this.workers.supervisor.updateBiomes();
 
     /* Control swap */
-    this.workers.conductor.handleSwap(this.workers.manager);
+    this.workers.swapper.handleSwap(this.workers.manager);
     
     /* Tell the cameraman to follow players position */
     this.workers.cameraman.update();
 
     /* Update cubes states */
-    this.workers.manager.updateCubes();
+    this.workers.manager.updateCubes(this);
 };
 
 SB2.Play.prototype.updateDying = function () {
-    this.workers.manager.updateCubes();
+    this.workers.manager.updateCubes(this);
 };
 
 SB2.Play.prototype.updateDead = function () {
@@ -96,4 +91,16 @@ SB2.Play.prototype.updateDead = function () {
 SB2.Play.prototype.render = function () {
     // this.game.debug.cameraInfo(this.game.camera, 25, 32);    
     // this.game.debug.bodyInfo(this.cube1, 500, 32);    
+};
+
+/** Behavior when the two players collide */
+SB2.Play.prototype.deathTouch = function () {
+    if(this.game.SB2GameState != SB2.Play.prototype.DYING){
+        /* Update game state and hold music and swap */
+        this.game.SB2GameState = SB2.Play.prototype.DYING;
+        this.workers.manager.cubes[0].die();
+        this.workers.manager.cubes[1].die();
+        this.workers.musician.stopMusic();
+        this.workers.swapper.stop();
+    }
 };

@@ -2,26 +2,27 @@
 /* global Phaser */
 "use strict";
 
-// REFACTOR : Separate this class : one should handle music (and
-// sound?)  the other will handle the swap timing.
-/** The conductor will handle the music and the swap during the game. 
-    @param {Object} workers The powerful team that does a great job
+/** The Swapper is responsible of the swaps scheduling.
  * @param {Phaser.Game} game The game instance
  */
-SB2.Conductor = function (game) {
-    SB2.Worker.call(this, undefined, game);
+SB2.Swapper = function (game) {
+    this.game = game;
+    this.initSwap();
 };
 
-/* Inheritance from Worker */
-SB2.Conductor.prototype = Object.create(SB2.Worker.prototype);
-SB2.Conductor.prototype.constructor = SB2.Conductor;
+// CONSTANTS
+/** Secondary Indicator period */
+SB2.Swapper.INDIC_PERIOD = SB2.SWAP_PERIOD/SB2.NUM_INDIC;
+/** Indicator thickness */
+SB2.Swapper.INDIC_THICK = 10;
 
-SB2.Conductor.prototype.initSwap = function(){
+
+SB2.Swapper.prototype.initSwap = function(){
     var indic,  // Temporary variable to create swap indicators
     // constants shorthands
     H = SB2.HEIGHT, W = SB2.WIDTH,
-    ITH = SB2.INDIC_THICK, U = SB2.UNIT,
-    P = SB2.INDIC_PERIOD;
+    ITH = SB2.Swapper.INDIC_THICK, U = SB2.UNIT,
+    P = SB2.Swapper.INDIC_PERIOD;
 
 
     this.swapIndicators = this.game.add.group(undefined, 'indicators', true,  false); // No body
@@ -45,43 +46,16 @@ SB2.Conductor.prototype.initSwap = function(){
 
     // Init swap timer
     this.swap = {timer: new SB2.Timer(this.game), count:0};
-};
 
-SB2.Conductor.prototype.initMusic = function(){
-    function muteFunction () {
-        if(this.game.sound.mute) {
-            // Demute && Update button icon
-            this.muteButton.frame = 0;
-            this.game.sound.mute = false;
-            SB2.muted = false;
-        } else {
-            // Mute
-            this.muteButton.frame = 1;        
-            this.game.sound.mute = true;
-            SB2.muted = true;
-        }
-    }
-
-    // Init music
-    this.music = this.game.add.audio('music');
-
-    // Init mute button
-    this.muteButton = this.game.add.button(0, 0, 'mute', muteFunction, this);
-    this.muteButton.frame = SB2.muted ? 1 : 0;
-    this.muteButton.alpha = 0.5;
-    this.muteButton.fixedToCamera = true;
-
-    // Add the pause and resume handling
+    // Add behavior on events
     this.game.onPause.add(this.onPaused, this);
     this.game.onResume.add(this.onResumed, this);
 };
 
 /** Effectively start the timer (and music) */
-SB2.Conductor.prototype.startSwap = function(){
+SB2.Swapper.prototype.start = function(){
     // Start timer and music
     this.swap.timer.start();
-    this.music.play("", 0, 1, true);
-    this.music.loop = true;
 };
 
 
@@ -91,9 +65,9 @@ SB2.Conductor.prototype.startSwap = function(){
 /** Measure time and swap controls if needed. Also in charge of
  * displaying timing indicators
  * @param {Manager} manager Reference to the cube manager */
-SB2.Conductor.prototype.handleSwap = function(manager){
+SB2.Swapper.prototype.handleSwap = function(manager){
     // Check the timer 
-    if(this.swap.timer.elapsed() > SB2.INDIC_PERIOD*this.swap.count) {
+    if(this.swap.timer.elapsed() > SB2.Swapper.INDIC_PERIOD*this.swap.count) {
         // If it's the last indicator
         if(this.swap.count % SB2.NUM_INDIC == 2) {
             // Make a swap
@@ -114,27 +88,17 @@ SB2.Conductor.prototype.handleSwap = function(manager){
     }
 };
 
-SB2.Conductor.prototype.onPaused = function () {
+SB2.Swapper.prototype.onPaused = function () {
     this.swap.timer.pause();
-    this.music.pause();
 };
 
-SB2.Conductor.prototype.onResumed = function () {
+// TODO : don't resume if it was already paused
+SB2.Swapper.prototype.onResumed = function () {
     this.swap.timer.resume();
-    this.music.resume();
 };
 
-SB2.Conductor.prototype.die = function(){
-    this.music.stop();
+SB2.Swapper.prototype.stop = function(){
     this.swap.timer.pause();
     this.swap.timer.reset();
     this.swap.count = 0; 
-}
-
-SB2.Conductor.prototype.reset = function(){
-    this.swapIndicators.destroy();
-    this.music.destroy();
-    this.muteButton.destroy();
-
-    this.initializes("Swap", "Music");
-}
+};

@@ -63,7 +63,7 @@ SB2.Manager.prototype.setCubesState = function(ids, state){
     for(var i = 0; i < ids.length; i++){ this.cubes[ids[i]].state = state; }
 };
 
-SB2.Manager.prototype.updateCubes = function(){
+SB2.Manager.prototype.updateCubes = function(state){
     var screenLimit;
 
     /* Update the cubes */
@@ -82,7 +82,7 @@ SB2.Manager.prototype.updateCubes = function(){
         if(this.game.physics.arcade.overlap(this.cubes[0], this.cubes[1])
            || !this.game.physics.arcade.overlap(this.cubes[0], screenLimit)
            || !this.game.physics.arcade.overlap(this.cubes[1], screenLimit)) {
-            this.deathTouch();
+            state.deathTouch();
         }
     }
     
@@ -92,19 +92,6 @@ SB2.Manager.prototype.updateCubes = function(){
     }
 };
 
-
-// REFACTOR : this behavior is specific to Play and depend of its
-// state. So let's keep it in Play.js
-/** Called when the two players collide */
-SB2.Manager.prototype.deathTouch = function () {
-    if(this.game.SB2GameState != SB2.Play.prototype.DYING){
-        this.game.SB2GameState = SB2.Play.prototype.DYING;
-        this.cubes[0].die();
-        this.cubes[1].die();
-        /* Update game state and hold music and swap */
-        this.workers.conductor.die();
-    }
-};
 
 SB2.Manager.prototype.getScore = function(){
     var distance = Math.floor(this.workers.supervisor.getTraveledDistance() / 10);
