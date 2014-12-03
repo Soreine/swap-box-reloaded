@@ -62,9 +62,8 @@ SB2.Swapper.prototype.start = function(){
 // manager will handle it for cube swap, and another component may
 // handle it to create the on screen swap effect.
 /** Measure time and swap controls if needed. Also in charge of
- * displaying timing indicators
- * @param {Manager} manager Reference to the cube manager */
-SB2.Swapper.prototype.handleSwap = function(manager){
+ * displaying timing indicators */
+SB2.Swapper.prototype.handleSwap = function(){
     // Check the timer 
     if(this.swap.timer.elapsed() > SB2.Swapper.INDIC_PERIOD*this.swap.count) {
         // If it's the last indicator

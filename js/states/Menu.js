@@ -41,12 +41,22 @@ SB2.Menu.prototype.create = function () {
     }
 
     // Add mute button
-    this.initMusic();
+    this.muteButton = new SB2.MuteButton(this.game);
 
-    // Pause the game because we are handling the menu with HTML
-    // elements
-    this.game.pause = true;
+    this.swapSound = this.game.add.audio("swap");
 
+    // Add two cubes
+    this.cube = [new SB2.Cube(this.game, 320, 480, undefined, 1),
+                 new SB2.Cube(this.game, 480, 480, undefined, 0)];
+    this.cube.forEach(function (cube) {cube.body.allowGravity = false;});
+
+    
+    this.eventManager = new SB2.EventManager();
+    this.eventManager.on(SB2.EVENTS.SWAP, this.onSwap, this);
+
+    this.swapper = new SB2.Swapper(this.game, this.eventManager);
+    this.swapper.start();
+    
     // Set the menu overlay visible
     this.setVisibility('visible');
 
@@ -57,6 +67,7 @@ SB2.Menu.prototype.create = function () {
 };
 
 SB2.Menu.prototype.update = function () {
+    this.swapper.handleSwap();
 };
 
 SB2.Menu.onPlay = function () {
@@ -64,36 +75,11 @@ SB2.Menu.onPlay = function () {
     if(this.seed.value != '') {            
         SB2.seed = this.seed.value;
     }
+
     // hide menu
     this.setVisibility('hidden');
     // Start the game
     this.game.state.start('Play');
-};
-
-SB2.Menu.prototype.initMusic = function () {
-    function muteFunction () {
-        if(this.game.sound.mute) {
-            // Demute
-            // Update button icon
-            this.muteButton.frame = 0;
-            this.game.sound.mute = false;
-            SB2.muted = false;
-        } else {
-            // Mute
-            this.muteButton.frame = 1;        
-            this.game.sound.mute = true;
-            SB2.muted = true;
-        }
-    }
-
-    // Init music
-    this.music = this.game.add.audio('music');
-
-    // Init mute button
-    this.muteButton = this.game.add.button(0, 0, 'mute', muteFunction, this);
-    this.muteButton.frame = SB2.muted ? 1 : 0;
-    this.muteButton.alpha = 0.5;
-    this.muteButton.fixedToCamera = true;
 };
 
 SB2.Menu.prototype.setVisibility = function (visibility) {
@@ -101,4 +87,9 @@ SB2.Menu.prototype.setVisibility = function (visibility) {
     for(var i = 0, length = this.overlay.length; i < length; i++) {
         this.overlay[i].style.visibility = visibility;
     }
+};
+
+SB2.Menu.prototype.onSwap = function () {
+    SB2.Cube.swap(this.cube[0], this.cube[1]);
+    //this.swapSound.play("", 0, 0.4, false); // TODO
 };

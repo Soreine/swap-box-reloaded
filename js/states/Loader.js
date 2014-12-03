@@ -34,6 +34,7 @@ SB2.Loader.prototype.preload = function () {
     this.game.load.spritesheet('death', SB2.GRAPHIC_ASSETS + 'death.png', 10, 10, 9);
     this.game.load.spritesheet('spirits', SB2.GRAPHIC_ASSETS + 'spirits.png', 16, 16, 2);
     this.game.load.audio('music', SB2.SOUND_ASSETS + 'square-run.ogg');
+    this.game.load.audio('swap', SB2.SOUND_ASSETS + 'swap.ogg');
 
     this.game.sound.mute = SB2.muted;
 

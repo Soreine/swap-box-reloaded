@@ -32,6 +32,9 @@ SB2.Play.prototype.preload = function () {};
 SB2.Play.prototype.create = function () {    
     this.game.SB2GameState = this.STARTING;
     this.eventManager = new SB2.EventManager();
+    // Add a mute button
+    this.muteButton = new SB2.MuteButton(this.game);
+
     /* Instanciate all the workers (components) */
     this.workers.manager = new SB2.Manager(this.workers, this.game, this.eventManager);
     this.workers.decorator = new SB2.Decorator(this.workers, this.game);
@@ -71,7 +74,7 @@ SB2.Play.prototype.updateRunning = function () {
     this.workers.supervisor.updateBiomes();
 
     /* Control swap */
-    this.workers.swapper.handleSwap(this.workers.manager);
+    this.workers.swapper.handleSwap();
     
     /* Tell the cameraman to follow players position */
     this.workers.cameraman.update();

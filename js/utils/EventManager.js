@@ -25,8 +25,11 @@ SB2.EventManager.prototype = {
      * @param {Event} event The related event
      */
     trigger: function(event) {
-        this.listeners[event.id].forEach(function(listener){
-            listener.handler.call(listener.caller, event);
-        });
+        var listeners = this.listeners[event.id];
+        if(listeners) {
+            listeners.forEach(function(listener){
+                listener.handler.call(listener.caller, event);
+            });
+        }
     }
 };
