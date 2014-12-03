@@ -2,8 +2,6 @@
 /* global Phaser */
 "use strict";
 
-var SB2 = {};
-
 /** This class represent a plan, or map for a level. This is used for
  * level generation.
  * @param {Number} width The width of the plan in units
@@ -48,10 +46,9 @@ SB2.Plan.prototype.get = function (x, y) {
  * @param {Number} width (default = 1) Width of the rectangle  
  * @param {Number} height (default = 1) Height of the rectangle  */
 SB2.Plan.prototype.fill = function (value, x, y, width, height) {
-    // Default x2 and y2 to the value of x and y
     width = width || 1;
     height = height || 1;
-    
+
     for (var j = y, endY = y + height; j < endY; j++) {
         for (var i = x, endX = x + width; i < endX; i++) {
             this.set(i, j, value);
@@ -91,7 +88,6 @@ SB2.Plan.prototype.optimise = function () {
         // Create a copy of this plan
         copy = this.copy();
     
-    console.log(copy);
     for (var x = 0; x < this.width; x++) {
         for (var y = 0; y < this.height; y++) {
             val = copy.get(x, y);

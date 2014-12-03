@@ -5,9 +5,9 @@
 /** The Swapper is responsible of the swaps scheduling.
  * @param {Phaser.Game} game The game instance
  */
-SB2.Swapper = function (game) {
-    this.game = game;
-    this.initSwap();
+SB2.Swapper = function (game, eventManager) {
+    this.eventManager = eventManager; 
+    this.initSwap(game);
 };
 
 // CONSTANTS
@@ -16,8 +16,7 @@ SB2.Swapper.INDIC_PERIOD = SB2.SWAP_PERIOD/SB2.NUM_INDIC;
 /** Indicator thickness */
 SB2.Swapper.INDIC_THICK = 10;
 
-
-SB2.Swapper.prototype.initSwap = function(){
+SB2.Swapper.prototype.initSwap = function(game){
     var indic,  // Temporary variable to create swap indicators
     // constants shorthands
     H = SB2.HEIGHT, W = SB2.WIDTH,
@@ -25,7 +24,7 @@ SB2.Swapper.prototype.initSwap = function(){
     P = SB2.Swapper.INDIC_PERIOD;
 
 
-    this.swapIndicators = this.game.add.group(undefined, 'indicators', true,  false); // No body
+    this.swapIndicators = game.add.group(undefined, 'indicators', true,  false); // No body
     this.swapIndicators.alpha = 0;
 
     // Create 4 bars assembling into a frame
@@ -39,17 +38,17 @@ SB2.Swapper.prototype.initSwap = function(){
     indic.scale.setTo(ITH, H - 2*ITH);
 
     // Init the indicator tweener
-    this.swapTween = {primary: this.game.add.tween(this.swapIndicators),
-                      secondary: this.game.add.tween(this.swapIndicators)};
+    this.swapTween = {primary: game.add.tween(this.swapIndicators),
+                      secondary: game.add.tween(this.swapIndicators)};
     this.swapTween.primary.from({alpha:0}, P/2);
     this.swapTween.secondary.from({alpha:0}, P/4);
 
     // Init swap timer
-    this.swap = {timer: new SB2.Timer(this.game), count:0};
+    this.swap = {timer: new SB2.Timer(game), count:0};
 
     // Add behavior on events
-    this.game.onPause.add(this.onPaused, this);
-    this.game.onResume.add(this.onResumed, this);
+    game.onPause.add(this.onPaused, this);
+    game.onResume.add(this.onResumed, this);
 };
 
 /** Effectively start the timer (and music) */
@@ -70,13 +69,14 @@ SB2.Swapper.prototype.handleSwap = function(manager){
     if(this.swap.timer.elapsed() > SB2.Swapper.INDIC_PERIOD*this.swap.count) {
         // If it's the last indicator
         if(this.swap.count % SB2.NUM_INDIC == 2) {
-            // Make a swap
-            SB2.Cube.swap(manager.cubes[0], manager.cubes[1]);
+            // Raise a SWAP event
+            this.eventManager.trigger(new SB2.Event(SB2.EVENTS.SWAP));
             // Make a primary flash
             this.swapIndicators.alpha = 1.0;
             this.swapTween.primary.start();
         } else {
             if(SB2.SECONDARY_INDICATOR) {
+                this.eventManager.trigger(new SB2.Event(SB2.EVENTS.SWAP_TICK));
                 // Make a secondary flash
                 this.swapIndicators.alpha = 0.1;
                 this.swapTween.secondary.start();

@@ -31,13 +31,13 @@ SB2.Play.prototype.preload = function () {};
 
 SB2.Play.prototype.create = function () {    
     this.game.SB2GameState = this.STARTING;
-
+    this.eventManager = new SB2.EventManager();
     /* Instanciate all the workers (components) */
-    this.workers.manager = new SB2.Manager(this.workers, this.game);
+    this.workers.manager = new SB2.Manager(this.workers, this.game, this.eventManager);
     this.workers.decorator = new SB2.Decorator(this.workers, this.game);
     this.workers.cameraman = new SB2.Cameraman(this.game);
     this.workers.musician = new SB2.Musician(this.game);
-    this.workers.swapper = new SB2.Swapper(this.game);
+    this.workers.swapper = new SB2.Swapper(this.game, this.eventManager);
     this.workers.supervisor = new SB2.Supervisor(this.workers, this.game);
     this.workers.supervisor.initializeAll();
 };

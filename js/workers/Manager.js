@@ -3,11 +3,14 @@
 "use strict";
 
 /** He's here to watch on the cubes situations and handle their behaviors.
-* @param {Object} workers The powerful team that does a great job
-* @param {Phaser.Game} game The instance of the Game
-*/
-SB2.Manager = function (workers, game) {
+ * @param {Object} workers The powerful team that does a great job
+ * @param {Phaser.Game} game The instance of the Game
+ * @param {EventManager} em The instance of the event manager
+ */
+SB2.Manager = function (workers, game, em) {
     SB2.Worker.call(this, workers, game);
+    // Register the swap event behavior
+    em.on(SB2.EVENTS.SWAP, this.onSwap, this);
     this.jumps = 0;
 };
 
@@ -103,4 +106,10 @@ SB2.Manager.prototype.reset = function(){
     this.initializes("Cubes");
     this.distance = 0;
     this.jumps = 0;
+};
+
+/** Called after SWAP event */
+SB2.Manager.prototype.onSwap = function () {
+    // Make a swap
+    SB2.Cube.swap(this.cubes[0], this.cubes[1]);
 };
