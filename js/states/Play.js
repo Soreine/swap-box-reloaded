@@ -30,20 +30,34 @@ SB2.Play.prototype.DEAD     = 4;
 SB2.Play.prototype.preload = function () {};
 
 SB2.Play.prototype.create = function () {    
-    this.game.SB2GameState = this.STARTING;
+    /* Set the current state of the game */
+    this.SB2GameState = this.STARTING;
 
-    /* Instanciate all the workers (components) */
-    this.workers.manager = new SB2.Manager(this.workers, this.game);
-    this.workers.decorator = new SB2.Decorator(this.workers, this.game);
-    this.workers.cameraman = new SB2.Cameraman(this.game);
-    this.workers.musician = new SB2.Musician(this.game);
-    this.workers.swapper = new SB2.Swapper(this.game);
-    this.workers.supervisor = new SB2.Supervisor(this.workers, this.game);
-    this.workers.supervisor.initializeAll();
+    /* Initiate specific entities or utils, except cubes which 
+    should be rendred later */
+    this.eventManager = new SB2.EventManager();
+    this.randomizer = new SB2.Randomizer(SB2.Randomizer.prototype.genSeedFromPhrase(SB2.seed || "Time To Refactor"));
+    this.screenLimit = new SB2.ScreenLimit(this.game);
+    this.controls = SB2.Controls.prototype.createControls(this.game.input.keyboard);
+
+    /* Instanciate all the workers (components) 
+    * The order matter, especially for rendering */
+    this.workers.physicist  = new SB2.Physicist(this.eventManager);
+    this.workers.decorator  = new SB2.Decorator(this.game, this.eventManager);
+    this.workers.manager    = new SB2.Manager(this.eventManager);
+    this.workers.musician   = new SB2.Musician(this.game);
+    this.workers.swapper    = new SB2.Swapper(this.game);
+    this.workers.cameraman  = new SB2.Cameraman(this.eventManager);
+
+    /* Finally, instanciate and render cubes and platforms */
+    this.cubes = SB2.Manager.prototype.createCubes(this.game, this.controls);
+    this.workers.sequencer  = new SB2.Sequencer(this.game, this.eventManager,
+        new SB2.Randomizer(this.randomizer.genSeed()), 
+        this.cubes, this.screenLimit);
 };
 
 SB2.Play.prototype.update = function () {
-    switch(this.game.SB2GameState){
+    switch(this.SB2GameState){
         case this.PAUSED: this.updatePaused(); break;
         case this.RUNNING: this.updateRunning(); break;
         case this.STARTING: this.updateStarting(); break;
@@ -56,14 +70,14 @@ SB2.Play.prototype.updatePaused = function(){};
 
 SB2.Play.prototype.updateStarting = function () {
     /* Update all biomes */
-    this.workers.supervisor.updateBiomes();
+    this.workers.sequencer.updateBiomes(this.game, this.cubes, this.screenLimit);
 
-    /* Display Starting Chrono and handle starting */
-    this.workers.supervisor.updateStartingChrono();
-    this.workers.decorator.handleStartingText();
+    // /* Display Starting Chrono and handle starting */
+    // this.workers.supervisor.updateStartingChrono();
+    // this.workers.decorator.handleStartingText();
 
     /* Update cubes behavior */
-    this.workers.manager.updateCubes(this);
+    this.workers.manager.updateCubes(this.game, this.cubes);
 };
 
 SB2.Play.prototype.updateRunning = function () {
