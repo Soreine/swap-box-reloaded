@@ -89,7 +89,7 @@ SB2.Sequencer.prototype = {
         this.totalOffset += removed.getWidth();
 
         // TODO! C'est pas au biome sequencer de shift ces elements là. Plutot lever un event, "BiomeShifted"
-        toShift = [ cubes[0].body,  cube[1].body, game.camera, screenLimit.triggerZone]
+        toShift = [ cubes[0].body,  cubes[1].body, game.camera, screenLimit.triggerZone]
         for(length = toShift.length, i = 0; i < length; i++) {
             toShift[i].x -= removed.getWidth();
         }
@@ -107,7 +107,6 @@ SB2.Sequencer.prototype = {
     */
     addBiome: function(game, biome){
         biome = new biome(game, new SB2.Randomizer(this.randomizer.genSeed()), this.endOfLastBiome);
-        console.log(biome);
         biome.setUpContent(game);
         this.endOfLastBiome += biome.getWidth();
         this.biomes.unshift(biome);

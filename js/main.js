@@ -64,7 +64,7 @@ SB2.muted = false;
 window.onload = function () {
     /* Create a Game instance */
     var game = new Phaser.Game(SB2.WIDTH, SB2.HEIGHT, Phaser.CANVAS, 'SB2', null, false, false);
-    
+
     /** Reference to the game */
     SB2.game = game;
 

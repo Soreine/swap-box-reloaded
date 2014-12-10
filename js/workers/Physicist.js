@@ -6,8 +6,9 @@
 * He also keep an eye on the screen limit when he has to. 
 * @param {eventManager} eventManager A reference to the event's 
 */
-SB2.Physicist = function (eventManager) {
+SB2.Physicist = function (game, eventManager) {
     this.eventManager = eventManager;
+    this.initGameWorld(game);
 };
 
 /** We're going to be using physics, so enable the Arcade Physics system
@@ -20,16 +21,13 @@ SB2.Physicist.prototype.initGameWorld = function(game){
 
 /** Checks to see if the both cubes overlap 
 */
-SB2.Physicist.prototype.checkCubeCollision = function(cubes, gamePhysic, screenLimit, gameState){
-    /* We are not going to check for a collision if cubes have already collided */
-    if(gameState != SB2.Play.prototype.DYING){
-        if(gamePhysic.overlap(cubes[0], cubes[1])
-           || !gamePhysic.overlap(cubes[0], screenLimit.triggerZone)
-           || !gamePhysic.overlap(cubes[1], screenLimit.triggerZone)) {
-            
-            // Trigger an event
-            state.deathTouch();
-        }
+SB2.Physicist.prototype.checkCubesCollision = function(cubes, gamePhysic, screenLimit){
+    if(gamePhysic.overlap(cubes[0], cubes[1])
+       || !gamePhysic.overlap(cubes[0], screenLimit.triggerZone)
+       || !gamePhysic.overlap(cubes[1], screenLimit.triggerZone)) {
+        
+        // Trigger an event
+        this.eventManager.trigger(new SB2.Event(SB2.EVENTS.CUBE_COLLISION));
     }
 }
 

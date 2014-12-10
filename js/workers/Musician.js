@@ -10,9 +10,15 @@ SB2.Musician = function (game) {
     this.initMusic();
 };
 
+SB2.Musician.FADE_OUT = 1000;
+
 SB2.Musician.prototype.initMusic = function(){
     // Init music
     this.music = this.game.add.audio('music');
+
+    // On fade complete, should restore the volume and stop the music
+    // this.music.onFadeComplete.add(SB2.Musician.onFadeComplete);
+
 
     // Add the pause and resume handling
     this.game.onPause.add(this.onPaused, this);
@@ -34,5 +40,15 @@ SB2.Musician.prototype.onResumed = function () {
 };
 
 SB2.Musician.prototype.stopMusic = function(){
+    // this.music.fadeOut(SB2.Musician.FADE_OUT);
     this.music.stop();
-}
+};
+
+SB2.Musician.onFadeComplete = function (music, volume)  {
+    if(volume == 0) {
+        // Stop the music
+        music.stop();
+        // Reset volume
+        music.volume = 1;
+    }
+};

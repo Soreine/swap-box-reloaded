@@ -27,11 +27,12 @@ SB2.Play.prototype.DEAD     = 4;
 //------------------------------------------------------------------------------
 // State functions
 //------------------------------------------------------------------------------
-SB2.Play.prototype.preload = function () {};
+SB2.Play.prototype.preload = function () { };
 
 SB2.Play.prototype.create = function () {    
     /* Set the current state of the game */
     this.SB2GameState = this.STARTING;
+    this.game.time.advancedTiming = true;
 
     /* Initiate specific entities or utils, except cubes which 
     should be rendred later */
@@ -39,21 +40,26 @@ SB2.Play.prototype.create = function () {
     this.randomizer = new SB2.Randomizer(SB2.Randomizer.prototype.genSeedFromPhrase(SB2.seed || "Time To Refactor"));
     this.screenLimit = new SB2.ScreenLimit(this.game);
     this.controls = SB2.Controls.prototype.createControls(this.game.input.keyboard);
+    this.muteButton = new SB2.MuteButton(this.game);
 
     /* Instanciate all the workers (components) 
     * The order matter, especially for rendering */
-    this.workers.physicist  = new SB2.Physicist(this.eventManager);
+    this.workers.physicist  = new SB2.Physicist(this.game, this.eventManager);
     this.workers.decorator  = new SB2.Decorator(this.game, this.eventManager);
     this.workers.manager    = new SB2.Manager(this.eventManager);
     this.workers.musician   = new SB2.Musician(this.game);
-    this.workers.swapper    = new SB2.Swapper(this.game);
+    this.workers.swapper    = new SB2.Swapper(this.game, this.eventManager);
     this.workers.cameraman  = new SB2.Cameraman(this.eventManager);
+    this.workers.animator   = new SB2.Animator(this.eventManager);
 
     /* Finally, instanciate and render cubes and platforms */
     this.cubes = SB2.Manager.prototype.createCubes(this.game, this.controls);
     this.workers.sequencer  = new SB2.Sequencer(this.game, this.eventManager,
         new SB2.Randomizer(this.randomizer.genSeed()), 
         this.cubes, this.screenLimit);
+
+    /* Handle some events triggering */
+    this.eventManager.on(SB2.EVENTS.CUBE_COLLISION, this.deathTouch, this);
 };
 
 SB2.Play.prototype.update = function () {
@@ -69,38 +75,35 @@ SB2.Play.prototype.update = function () {
 SB2.Play.prototype.updatePaused = function(){};
 
 SB2.Play.prototype.updateStarting = function () {
-    /* Update all biomes */
+    /* Update all biomes & cubes behavior */
     this.workers.sequencer.updateBiomes(this.game, this.cubes, this.screenLimit);
-
-    // /* Display Starting Chrono and handle starting */
-    // this.workers.supervisor.updateStartingChrono();
-    // this.workers.decorator.handleStartingText();
-
-    /* Update cubes behavior */
     this.workers.manager.updateCubes(this.game, this.cubes);
+
+    /* Handle the starting animation */
+    this.handleStartAnimation();
 };
 
 SB2.Play.prototype.updateRunning = function () {
     /* Update all biomes */
-    this.workers.supervisor.updateBiomes();
+    this.workers.sequencer.updateBiomes(this.game, this.cubes, this.screenLimit);
+    this.workers.manager.updateCubes(this.game, this.cubes);
 
     /* Control swap */
-    this.workers.swapper.handleSwap(this.workers.manager);
+    this.workers.swapper.handleSwap(this.cubes);
     
     /* Tell the cameraman to follow players position */
-    this.workers.cameraman.update();
+    this.workers.cameraman.update(this.game.camera, this.game.time);
 
-    /* Update cubes states */
-    this.workers.manager.updateCubes(this);
+    /* Update cubes states and check for collision */
+    this.workers.manager.updateCubes(this.game, this.cubes);
+    //this.workers.physicist.checkCubesCollision(this.cubes, this.game.physics.arcade, this.screenLimit);
 };
 
 SB2.Play.prototype.updateDying = function () {
-    this.workers.manager.updateCubes(this);
+    this.workers.manager.updateCubes(this.game, this.cubes);
 };
 
-SB2.Play.prototype.updateDead = function () {
-    this.workers.decorator.displayScore();
-}
+SB2.Play.prototype.updateDead = function () { }
 
 SB2.Play.prototype.render = function () {
     // this.game.debug.cameraInfo(this.game.camera, 25, 32);    
@@ -109,12 +112,21 @@ SB2.Play.prototype.render = function () {
 
 /** Behavior when the two players collide */
 SB2.Play.prototype.deathTouch = function () {
-    if(this.game.SB2GameState != SB2.Play.prototype.DYING){
+    if(this.SB2GameState != SB2.Play.prototype.DYING){
         /* Update game state and hold music and swap */
-        this.game.SB2GameState = SB2.Play.prototype.DYING;
-        this.workers.manager.cubes[0].die();
-        this.workers.manager.cubes[1].die();
-        this.workers.musician.stopMusic();
+        this.SB2GameState = SB2.Play.prototype.DYING;
+        this.workers.manager.killCubes(this.cubes);
+        //this.workers.musician.stopMusic();
         this.workers.swapper.stop();
     }
 };
+
+SB2.Play.prototype.handleStartAnimation = function() {
+    if(!this.animationDisplayed){
+        this.animationDisplayed = this.workers.animator.displayStartAnimation(this.game.add, function(){
+            this.SB2GameState = this.RUNNING;
+            this.workers.swapper.start();
+            this.workers.manager.setCubesState(this.cubes, SB2.Cube.prototype.AIRBORNE);
+        }, this);
+    }
+}
