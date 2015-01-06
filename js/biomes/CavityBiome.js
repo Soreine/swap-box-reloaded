@@ -3,10 +3,10 @@
 "use strict";
 
 /** @see Biome */
-SB2.CavityBiome = function (randomizer, endOfLastBiome, game) {
+SB2.CavityBiome = function (game, randomizer, endOfLastBiome) {
     // Call the parent constructor
     this.width = 200*SB2.UNIT;
-    SB2.Biome.call(this, randomizer, endOfLastBiome, this.width, game);
+    SB2.Biome.call(this, game, randomizer, endOfLastBiome, this.width);
 };
 
 // Extends Biome

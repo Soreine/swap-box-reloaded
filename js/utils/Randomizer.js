@@ -3,7 +3,7 @@
 "use strict";
 
 /* Instanciate a new pseudo-random generator
-* @param {seed} seed Seed of the pseudo-random generator
+* @param {String} phraseSeed Seed of the pseudo-random generator
 */
 SB2.Randomizer = function (seed) {
     this._seed = seed;
@@ -11,8 +11,7 @@ SB2.Randomizer = function (seed) {
 };
 
 SB2.Randomizer.prototype = {
-    /** Generate a random number between 0 and 1 
-    */
+    /** Generate a random number between 0 and 1 */
     rand: function() {
         var M;
 

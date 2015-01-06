@@ -63,13 +63,13 @@ SB2.Swapper.prototype.start = function(){
 // handle it to create the on screen swap effect.
 /** Measure time and swap controls if needed. Also in charge of
  * displaying timing indicators */
-SB2.Swapper.prototype.handleSwap = function(){
+SB2.Swapper.prototype.handleSwap = function(cubes){
     // Check the timer 
     if(this.swap.timer.elapsed() > SB2.Swapper.INDIC_PERIOD*this.swap.count) {
         // If it's the last indicator
         if(this.swap.count % SB2.NUM_INDIC == 2) {
             // Raise a SWAP event
-            this.eventManager.trigger(new SB2.Event(SB2.EVENTS.SWAP));
+            this.eventManager.trigger(new SB2.Event(SB2.EVENTS.SWAP, {cubes: cubes}));
             // Make a primary flash
             this.swapIndicators.alpha = 1.0;
             this.swapTween.primary.start();

@@ -6,7 +6,7 @@
 * @param {Randomizer} randomizer Randomizer needed to generate pseudo-random numbers
 * @param {Number} endOfLastBiome The end position of the previous Biome in pixel
 */
-SB2.Biome = function(randomizer, endOfLastBiome, width, game) {
+SB2.Biome = function(game, randomizer, endOfLastBiome, width) {
     var xs, i;
 
     this.randomizer = randomizer; this.endOfLastBiome = endOfLastBiome;
@@ -54,11 +54,11 @@ SB2.Biome.prototype = {
     * @param {Phaser.Camera} camera The game camera
     * @param {Phaser.Sprite} screenLimit Trigger of the screen limit
     */
-    setPositions: function(cube1, cube2, camera, screenLimit) {
-        cube1.x = this.endOfLastBiome + SB2.UNIT;
-        cube2.x = this.endOfLastBiome + 3*SB2.UNIT;
-        cube1.y = SB2.HEIGHT - 8*SB2.UNIT;
-        cube2.y = cube1.y;
+    setPositions: function(cubes, camera, screenLimit) {
+        cubes[0].x = this.endOfLastBiome + SB2.UNIT;
+        cubes[1].x = this.endOfLastBiome + 3*SB2.UNIT;
+        cubes[0].y = SB2.HEIGHT - 8*SB2.UNIT;
+        cubes[1].y = cubes[0].y;
 
         camera.setPosition(0, 0);
         screenLimit.x = this.endOfLastBiome + SB2.UNIT;
@@ -74,9 +74,10 @@ SB2.Biome.prototype = {
     * @param {Cube} cube2 Instance of the first player
     * @param {Phaser.game} game Instance of the current game
     */
-    update: function(cube1, cube2, game) {
-        game.physics.arcade.collide(cube1, [this.content.platforms, this.content.pillars]);
-        game.physics.arcade.collide(cube2, [this.content.platforms, this.content.pillars]);
+    update: function(game, cubes) {
+        cubes.forEach(function(cube){
+            game.physics.arcade.collide(cube, [this.content.platforms, this.content.pillars]);
+        }, this);
     },
 
     /** Shift the abscissa coordinates of a biome and all his elements

@@ -3,113 +3,50 @@
 "use strict";
 
 /** He's here to watch on the cubes situations and handle their behaviors.
- * @param {Object} workers The powerful team that does a great job
- * @param {Phaser.Game} game The instance of the Game
- * @param {EventManager} em The instance of the event manager
- */
-SB2.Manager = function (workers, game, em) {
-    SB2.Worker.call(this, workers, game);
-    // Register the swap event behavior
-    em.on(SB2.EVENTS.SWAP, this.onSwap, this);
-    this.jumps = 0;
-};
-
-/* Inheritance from Worker */
-SB2.Manager.prototype = Object.create(SB2.Worker.prototype);
-SB2.Manager.prototype.constructor = SB2.Manager;
-
-
-// REFACTOR : externalize the controls. Controls are shared SB2 variables, set at menu time
-/** Initialize the controls for player 1 and 2 */
-SB2.Manager.prototype.initControls = function () {
-    var kb = this.game.input.keyboard;
-    this.controls = [];
-    this.controls[0] = new SB2.Controls(kb.addKey(Phaser.Keyboard.UP),
-       null,
-       kb.addKey(Phaser.Keyboard.RIGHT),
-       kb.addKey(Phaser.Keyboard.LEFT)) ;
-    this.controls[1] = new SB2.Controls(kb.addKey(Phaser.Keyboard.FIVE),
-       null,
-       kb.addKey(Phaser.Keyboard.Y),
-       kb.addKey(Phaser.Keyboard.R));
+* @param {Phaser.Game} game The instance of the Game
+* @param {EventManager} em The instance of the event manager
+*/
+SB2.Manager = function(eventManager) {
+    this.eventManager = eventManager;
+    eventManager.on(SB2.EVENTS.SWAP, this.onSwap, this);
 };
 
 /** Initialize the two cubes/players; The cube definitive's position 
-* will be set by the supervisor according to the biome. 
+* will be set by the according to the sequencer
 */
-SB2.Manager.prototype.initCubes = function(){
-    this.cubes = [];
+SB2.Manager.prototype.createCubes = function(game, controls){
+    var cubes = [];
     for(var i = 0; i < 2; i++){
-        this.cubes[i] = new SB2.Cube(this.game, 0, 500, this.controls[i], i);
-        this.setCubesState([i], SB2.Cube.prototype.STARTING); // Stop cubes initially
+        cubes[i] = new SB2.Cube(game, 0, 500, controls["player"+(i+1)], i);
+        cubes[i].state = SB2.Cube.prototype.STARTING; // Stop cubes initially
     }
+    return cubes;
 };
 
-
-// REFACTOR concernant setCubesState ci-dessous : ok Matthias je veux
-// bien qu'écrire deux lignes identiques ça soit relou. Mais là ça
-// devient incensé :-p, tu pars de 2 lignes de codes identiques à 1
-// ligne de code + une fonction de deux lignes et sa doc. Utilise des
-// fonctions anonymes si tu veux. Exemple :
-/*
- var traitement = function(cube) {plein de traitements of cube};
- traitement(cube1);
- traitement(cube2);
-*/
-// Ou alors utilise forEach sur le tableau [cube1, cube2]
-// https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
-/** Set the state of one or both cube 
-* @param {Array} ids Ids of cube for which state should be changed
-* @param {Number} state State that has to be set 
-*/
-SB2.Manager.prototype.setCubesState = function(ids, state){
-    for(var i = 0; i < ids.length; i++){ this.cubes[ids[i]].state = state; }
-};
-
-SB2.Manager.prototype.updateCubes = function(state){
-    var screenLimit;
-
+SB2.Manager.prototype.updateCubes = function(game, cubes){
     /* Update the cubes */
-    this.cubes[0].myUpdate();
-    this.cubes[1].myUpdate();
+    cubes.forEach(function(cube){ cube.myUpdate() });
 
-    // REFACTOR : event jump
-    this.jumps += this.cubes.map(function(a) {return a.state == SB2.Cube.prototype.AIRBORNE ? 1 : 0;}
-    ).reduce(function(s,n){return s+n;});
-
-    
-    // REFACTOR : event cubes collide (and this should be handled by a Physicist class)
-    /* Checks to see if the both cubes overlap */
-    if(this.game.SB2GameState != SB2.Play.prototype.DYING){
-        screenLimit = this.workers.supervisor.screenLimit;
-        if(this.game.physics.arcade.overlap(this.cubes[0], this.cubes[1])
-           || !this.game.physics.arcade.overlap(this.cubes[0], screenLimit)
-           || !this.game.physics.arcade.overlap(this.cubes[1], screenLimit)) {
-            state.deathTouch();
-        }
-    }
-    
-    // REFACTOR : event cubes collide
-    if(this.cubes[0].state == SB2.Cube.prototype.DEAD && this.cubes[1].state == SB2.Cube.prototype.DEAD){
-        this.game.SB2GameState = SB2.Play.prototype.DEAD;
-    }
+    /* Maybe compute score */
 };
 
+SB2.Manager.prototype.setCubesState = function(cubes, state){
+    cubes.forEach(function(cube){ cube.state = state; });
+}
 
+SB2.Manager.prototype.killCubes = function(cubes){
+    cubes.forEach(function(cube) { cube.die(); });
+}
+
+/** TODO! */
 SB2.Manager.prototype.getScore = function(){
-    var distance = Math.floor(this.workers.supervisor.getTraveledDistance() / 10);
-    var jumps = this.jumps;
-    return distance + jumps;
+    return 14;
 };
 
-SB2.Manager.prototype.reset = function(){
-    this.initializes("Cubes");
-    this.distance = 0;
-    this.jumps = 0;
-};
+/** TODO! */
+SB2.Manager.prototype.reset = function(){ };
 
 /** Called after SWAP event */
-SB2.Manager.prototype.onSwap = function () {
-    // Make a swap
-    SB2.Cube.swap(this.cubes[0], this.cubes[1]);
+SB2.Manager.prototype.onSwap = function (event) {
+    SB2.Cube.swap(event.cubes[0], event.cubes[1]); // Make a swap
 };

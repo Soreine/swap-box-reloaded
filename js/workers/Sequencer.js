@@ -6,14 +6,12 @@
 *   of biome on a given level  
 *   @param {Randomizer} randomizer 
 */
-SB2.BiomesSequencer = function(randomizer, cube1, cube2, screenLimit, game, stackSize){
+SB2.Sequencer = function(game, eventManager, randomizer, cubes, screenLimit, stackSize){
     var i, biome;
 
     // Save valuables arguments
-    this.cube1 = cube1; this.cube2 = cube2; 
-    this.screenLimit = screenLimit; this.game = game;
-    this.randomizer = randomizer;
-    this.stackSize = stackSize || SB2.BiomesSequencer.DEFAULT_STACK_SIZE;
+    this.randomizer = randomizer; this.eventManager = eventManager;
+    this.stackSize = stackSize || SB2.Sequencer.DEFAULT_STACK_SIZE;
 
     this.biomes = [];
     this.endOfLastBiome = SB2.WIDTH / 2;
@@ -21,20 +19,20 @@ SB2.BiomesSequencer = function(randomizer, cube1, cube2, screenLimit, game, stac
 
     // Instanciate the first biome in the sequencer
     for(i = 0; i < this.stackSize; i++) {
-        biome = this.addBiome(this.pickUpNewOne());
+        biome = this.addBiome(game, this.pickUpNewOne());
 
         // Starting in the first biome
         if (i == 0) {
-            biome.setPositions(cube1, cube2, game.camera, screenLimit);
+            biome.setPositions(cubes, game.camera, screenLimit);
         }
     }
 };
 
 /** Represent the number of biome we should constantly have in Stack. 
 * It will impact the minimum width of a biome. */
-SB2.BiomesSequencer.DEFAULT_STACK_SIZE = 3;
+SB2.Sequencer.DEFAULT_STACK_SIZE = 3;
 
-SB2.BiomesSequencer.prototype = {
+SB2.Sequencer.prototype = {
     /** Select and add a new biome to the stack */
     pickUpNewOne: function() {
         var selection, biome, i, length;
@@ -64,18 +62,18 @@ SB2.BiomesSequencer.prototype = {
     *   if necessary, remove a non visible-biome, shift the remaning 
     *   and complete a new one 
      */
-     updateBiomes: function(){
+     updateBiomes: function(game, cubes, screenLimit){
         var i, biome;
 
         // It supposed implicitly that if a biome isn't visible anymore, 
         // it is the lastbiome of the stack... 
-        if(!this.currentBiome().hasBeenDisplayed(this.game.camera)){
-            this.shiftBiomes();
+        if(!this.currentBiome().hasBeenDisplayed(game.camera)){
+            this.shiftBiomes(game, cubes, screenLimit);
         }
 
         for(i = this.biomes.length - 1; i >= 0; i--){
             biome = this.biomes[i];
-            biome.update(this.cube1, this.cube2, this.game);
+            biome.update(game, cubes);
         }
      },
 
@@ -84,13 +82,14 @@ SB2.BiomesSequencer.prototype = {
     *   to put the first biome at the abscissa 0. Then return the
     *   end abscissa of the last biome 
     */
-    shiftBiomes: function() {
+    shiftBiomes: function(game, cubes, screenLimit) {
         var i, length, removed, toShift;
 
         removed = this.biomes.pop()
         this.totalOffset += removed.getWidth();
 
-        toShift = [ this.cube1.body,  this.cube2.body, this.game.camera,  this.screenLimit.body]
+        // TODO! C'est pas au biome sequencer de shift ces elements là. Plutot lever un event, "BiomeShifted"
+        toShift = [ cubes[0].body,  cubes[1].body, game.camera, screenLimit.triggerZone]
         for(length = toShift.length, i = 0; i < length; i++) {
             toShift[i].x -= removed.getWidth();
         }
@@ -100,15 +99,15 @@ SB2.BiomesSequencer.prototype = {
         };
         removed.killYourself();
         this.endOfLastBiome -= removed.getWidth();
-        this.addBiome(this.pickUpNewOne());
+        this.addBiome(game, this.pickUpNewOne());
     },
 
     /** Add a new biome to the cattle
     * @param {Biome} biome The constructor of the biome to add
     */
-    addBiome: function(biome){
-        biome = new biome(new SB2.Randomizer(this.randomizer.genSeed()), this.endOfLastBiome, this.game);
-        biome.setUpContent(this.game);
+    addBiome: function(game, biome){
+        biome = new biome(game, new SB2.Randomizer(this.randomizer.genSeed()), this.endOfLastBiome);
+        biome.setUpContent(game);
         this.endOfLastBiome += biome.getWidth();
         this.biomes.unshift(biome);
         return biome;

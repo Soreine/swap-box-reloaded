@@ -53,7 +53,7 @@ SB2.Menu.prototype.create = function () {
     
     this.eventManager = new SB2.EventManager();
     this.eventManager.on(SB2.EVENTS.SWAP, this.onSwap, this);
-
+    
     this.swapper = new SB2.Swapper(this.game, this.eventManager);
     this.swapper.start();
     
@@ -67,7 +67,7 @@ SB2.Menu.prototype.create = function () {
 };
 
 SB2.Menu.prototype.update = function () {
-    this.swapper.handleSwap();
+    this.swapper.handleSwap(this.cube);
 };
 
 SB2.Menu.onPlay = function () {
@@ -89,7 +89,7 @@ SB2.Menu.prototype.setVisibility = function (visibility) {
     }
 };
 
-SB2.Menu.prototype.onSwap = function () {
-    SB2.Cube.swap(this.cube[0], this.cube[1]);
+SB2.Menu.prototype.onSwap = function (event) {
+    SB2.Cube.swap(event.cubes[0], event.cubes[1]);
     //this.swapSound.play("", 0, 0.4, false); // TODO
 };

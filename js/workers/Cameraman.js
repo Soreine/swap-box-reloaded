@@ -3,34 +3,33 @@
 "use strict";
 
 /** Instanciate a cameraman which will manage the camera motion during the game 
-* @param {Object} workers The powerful team that does a great job
-* @param {Phaser.Game} game The instance of the Game
 * @param {Number} <optionnal> speed Lateral speed of the camera, in unit per second
 */
-SB2.Cameraman = function (game, speed) {
-    SB2.Worker.call(this, undefined, game);
-    // The speed is optionnal and got a specific default value if not precised
+SB2.Cameraman = function(eventManager, speed) {
+    /* The speed is optionnal and got a specific default value if not precised */
     this.speed = speed || this.DEFAULT_SPEED;
+
+    this.eventManager = eventManager;
 };
 
-/* Inheritance from Worker */
-SB2.Cameraman.prototype = Object.create(SB2.Worker.prototype);
-SB2.Cameraman.prototype.constructor = SB2.Cameraman;
-
-/** Value of the default lateral speed of the camera in unit per second */
-SB2.Cameraman.prototype.DEFAULT_SPEED = 100,
+/** Value of the default lateral speed of the camera */
+SB2.Cameraman.prototype.DEFAULT_SPEED = 5;
 
 /** Update the camera position since the last update */
-SB2.Cameraman.prototype.update = function(){
-    var delay;
+SB2.Cameraman.prototype.update = function(camera, time){
+    var offset;
 
     /* Compute the new camera position depending of the time scrolling */
-    delay = this.game.time.elapsedSince(this.previousTime);
-    this.game.camera.x += Math.ceil(delay * this.speed / 1000);
-    this.previousTime = this.game.time.now;
+    // delay = this.game.time.elapsedSince(this.previousTime);
+    // this.game.camera.x += Math.ceil(delay * this.speed / 1000);
+    // this.previousTime = this.game.time.now;
+
+    offset = Math.ceil((SB2.UNIT * this.speed * time.fps) / 1000);
+    camera.x += offset;
+    this.eventManager.trigger(new SB2.Event(SB2.EVENTS.CAMERA_MOVED, {offset: offset}));
 };
 
-/** start the cameraman */
+/** Start the cameraman */
 SB2.Cameraman.prototype.reset = function(){
     this.previousTime = this.game.time.now;
 };

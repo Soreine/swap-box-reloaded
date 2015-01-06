@@ -9,7 +9,7 @@
  * @param {object} <optional> data Complementary data to communicate
  */
 SB2.Event = function(id, data){
-    data = data || {};
+    var data = data || {};
     this.id = id;
     for(var key in data){
         if(key != "id"){
@@ -20,6 +20,6 @@ SB2.Event = function(id, data){
 
 /** All events that could be triggered */
 SB2.EVENTS = {};
-["SWAP", "SWAP_TICK"].forEach(function(elem, id){
+["SWAP", "SWAP_TICK", "CUBE_COLLISION"].forEach(function(elem, id){
     SB2.EVENTS[elem] = id;
 });
